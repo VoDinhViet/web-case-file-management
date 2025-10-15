@@ -1,7 +1,9 @@
 import { notFound } from "next/navigation";
+import { getSelectStaffs } from "@/actions";
 import { getCaseById } from "@/actions/case";
 import { EditCaseForm } from "@/components/features/cases/edit-case-form";
-import { getSelectStaffs } from "@/actions";
+
+export const dynamic = "force-dynamic";
 
 interface EditCasePageProps {
   params: Promise<{

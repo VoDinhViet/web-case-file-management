@@ -3,10 +3,10 @@ import { getCurrentUser } from "@/actions/auth";
 import { ReferralCardWrapper } from "@/components/features/dashboard/referral-card-wrapper";
 import { StatusStats } from "@/components/features/dashboard/status-stats";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  dashboardSearchParamsSchema,
-} from "@/schemas/dashboard";
+import { dashboardSearchParamsSchema } from "@/schemas/dashboard";
 import { RoleEnum } from "@/types/staff";
+
+export const dynamic = "force-dynamic";
 
 export default async function DashboardPage({
   searchParams,

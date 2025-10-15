@@ -1,7 +1,9 @@
 import { notFound, redirect } from "next/navigation";
+import { getSelectStaffs } from "@/actions";
 import { getTemplateById } from "@/actions/template";
 import { CreateCaseForm } from "@/components/features/cases/create-case-form";
-import { getSelectStaffs } from "@/actions";
+
+export const dynamic = "force-dynamic";
 
 interface CreateCasePageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;

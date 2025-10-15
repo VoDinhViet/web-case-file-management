@@ -1,10 +1,12 @@
+import Link from "next/link";
 import { Suspense } from "react";
+import { TemplateSearch } from "@/components/features/templates/template-search";
 import { TemplateTable } from "@/components/features/templates/template-table";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { templateSearchParamsSchema } from "@/schemas/template";
-import { Button } from "@/components/ui/button";
-import { TemplateSearch } from "@/components/features/templates/template-search";
-import Link from "next/link";
+
+export const dynamic = "force-dynamic";
 
 interface TemplatesPageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;

@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 import { getTemplateById } from "@/actions/template";
 import { EditTemplateForm } from "@/components/features/templates/edit-template-form";
 
+export const dynamic = "force-dynamic";
+
 interface EditTemplatePageProps {
   params: Promise<{
     id: string;

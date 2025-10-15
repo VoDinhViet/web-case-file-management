@@ -1,5 +1,7 @@
 import { TemplateDetail } from "@/components/features/templates/template-detail";
 
+export const dynamic = "force-dynamic";
+
 interface TemplateDetailPageProps {
   params: Promise<{
     id: string;

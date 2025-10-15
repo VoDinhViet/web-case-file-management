@@ -5,6 +5,8 @@ import { StaffTable } from "@/components/features/staff/staff-table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { staffSearchParamsSchema } from "@/schemas/staff";
 
+export const dynamic = "force-dynamic";
+
 interface StaffPageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }

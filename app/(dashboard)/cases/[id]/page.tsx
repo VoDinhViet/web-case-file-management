@@ -1,5 +1,7 @@
 import { CaseDetail } from "@/components/features/cases/case-detail";
 
+export const dynamic = "force-dynamic";
+
 interface CaseDetailPageProps {
   params: Promise<{
     id: string;
