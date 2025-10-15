@@ -36,7 +36,6 @@ export const templateSearchParamsSchema = z.object({
   page: z.coerce.number().int().positive().default(1).catch(1),
   limit: z.coerce.number().int().positive().default(10).catch(10),
   q: z.string().optional().catch(undefined),
-  category: z.string().optional().catch(undefined),
 });
 
 export type FieldFormData = z.infer<typeof fieldSchema>;

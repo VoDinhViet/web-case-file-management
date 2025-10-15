@@ -9,6 +9,7 @@ export interface Phase extends BaseEntity {
   endDate: Date | string;
   note?: string;
   isCompleted: boolean;
+  completedAt?: Date | string;
   tasks?: string[];
 }
 

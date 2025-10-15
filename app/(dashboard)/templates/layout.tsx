@@ -13,16 +13,6 @@ export default function TemplatesLayout({ children }: { children: ReactNode }) {
         title="Quản lý mẫu vụ án"
         description="Quản lý các mẫu tài liệu cho vụ án"
       />
-
-      <div className="flex items-center justify-between gap-4">
-        <Suspense fallback={<Skeleton className="h-10 w-full max-w-sm" />}>
-          <TemplateSearch />
-        </Suspense>
-        <Button asChild>
-          <Link href="/templates/create">Tạo mẫu mới</Link>
-        </Button>
-      </div>
-
       {children}
     </div>
   );

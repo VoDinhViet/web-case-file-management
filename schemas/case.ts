@@ -1,3 +1,4 @@
+import { CaseStatusEnum } from "@/types";
 import { z } from "zod";
 
 // Case schema
@@ -27,7 +28,7 @@ export const caseSearchParamsSchema = z.object({
   page: z.coerce.number().int().positive().default(1).catch(1),
   limit: z.coerce.number().int().positive().default(10).catch(10),
   q: z.string().optional().catch(undefined),
-  status: z.string().optional().catch(undefined),
+  status: z.enum(CaseStatusEnum).optional().catch(undefined),
   userId: z.string().optional().catch(undefined),
 });
 

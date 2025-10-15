@@ -22,11 +22,6 @@ export default function CasesLayout({ children }: { children: ReactNode }) {
         </Button>
       </div>
 
-      {/* Search */}
-      <div className="flex items-center gap-4">
-        <CasesSearch />
-      </div>
-
       {children}
     </div>
   );

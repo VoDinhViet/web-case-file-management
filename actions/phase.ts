@@ -154,7 +154,6 @@ export async function deletePhase({
     });
 
     revalidateTag("phases");
-    revalidatePath(`/cases/${caseId}`);
 
     return { success: true, message: "Đã xóa giai đoạn thành công" };
   } catch (error) {

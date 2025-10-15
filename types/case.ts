@@ -14,6 +14,14 @@ export interface CaseGroup {
   fields?: CaseField[];
 }
 
+export enum CaseStatusEnum {
+  PENDING = "PENDING", // Chưa xử lý
+  IN_PROGRESS = "IN_PROGRESS", // Đang xử lý
+  COMPLETED = "COMPLETED", // Đã đóng
+  ON_HOLD = "ON_HOLD", // Tạm hoãn
+  CANCELLED = "CANCELLED", // Hủy bỏ
+}
+
 export interface Case extends BaseEntity {
   name: string;
   applicableLaw?: string;
@@ -25,7 +33,7 @@ export interface Case extends BaseEntity {
   description?: string;
   customFields?: Record<string, unknown>;
   templateId?: string;
-  status?: CaseStatus;
+  status?: CaseStatusEnum;
   priority?: CasePriority;
   groups?: CaseGroup[];
 }
@@ -34,22 +42,6 @@ export interface CreateCaseInput
   extends Omit<Case, "id" | "createdAt" | "updatedAt"> {}
 
 export interface UpdateCaseInput extends Partial<CreateCaseInput> {}
-
-export enum CaseStatus {
-  OPEN = "open",
-  IN_PROGRESS = "in_progress",
-  PENDING = "pending",
-  RESOLVED = "resolved",
-  CLOSED = "closed",
-}
-
-export enum CaseStatusEnum {
-  PENDING = "PENDING", // Chưa xử lý
-  IN_PROGRESS = "IN_PROGRESS", // Đang xử lý
-  COMPLETED = "COMPLETED", // Đã đóng
-  ON_HOLD = "ON_HOLD", // Tạm hoãn
-  CANCELLED = "CANCELLED", // Hủy bỏ
-}
 
 export enum CasePriority {
   LOW = "low",

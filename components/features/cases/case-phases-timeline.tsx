@@ -41,6 +41,7 @@ function PhaseItem({ phase, caseId }: PhaseItemProps) {
     startDate,
     endDate,
     isCompleted,
+    completedAt,
     tasks,
     note,
   } = phase;
@@ -83,7 +84,6 @@ function PhaseItem({ phase, caseId }: PhaseItemProps) {
       if (result.success) {
         toast.success(result.message || "Đã xóa giai đoạn thành công");
         setShowDeleteDialog(false);
-        window.location.reload();
       } else {
         toast.error(result.error || "Không thể xóa giai đoạn");
       }
@@ -107,7 +107,7 @@ function PhaseItem({ phase, caseId }: PhaseItemProps) {
 
         {/* Phase Card */}
         <Card className="w-full transition-all duration-200 hover:shadow-md">
-          <CardHeader className="pb-4">
+          <CardHeader>
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1 space-y-2">
                 <div className="flex items-center gap-3">
@@ -184,7 +184,8 @@ function PhaseItem({ phase, caseId }: PhaseItemProps) {
               <div className="flex items-center gap-2 rounded-lg border-2 border-green-200 bg-gradient-to-r from-green-50 via-emerald-50 to-green-50 px-4 py-3 shadow-sm dark:border-green-800 dark:from-green-950/30 dark:via-emerald-950/30 dark:to-green-950/30">
                 <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
                 <span className="text-sm font-medium text-green-700 dark:text-green-300">
-                  ✓ Hoàn thành vào {formatDate(new Date().toISOString())}
+                  ✓ Hoàn thành
+                  {completedAt ? ` vào ${formatDate(completedAt)}` : ""}
                 </span>
               </div>
             )}

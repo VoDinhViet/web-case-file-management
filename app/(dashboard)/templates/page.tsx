@@ -2,6 +2,9 @@ import { Suspense } from "react";
 import { TemplateTable } from "@/components/features/templates/template-table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { templateSearchParamsSchema } from "@/schemas/template";
+import { Button } from "@/components/ui/button";
+import { TemplateSearch } from "@/components/features/templates/template-search";
+import Link from "next/link";
 
 interface TemplatesPageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -12,12 +15,21 @@ export default async function TemplatesPage({
 }: TemplatesPageProps) {
   const params = await searchParams;
   const validatedParams = templateSearchParamsSchema.parse(params);
-  const key = `${validatedParams.page}-${validatedParams.q || ""}-${validatedParams.category || ""}`;
 
   return (
-    <Suspense fallback={<TableSkeleton />} key={key}>
-      <TemplateTable searchParams={params} />
-    </Suspense>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between gap-4">
+        <Suspense fallback={<Skeleton className="h-10 w-full max-w-sm" />}>
+          <TemplateSearch />
+        </Suspense>
+        <Button asChild>
+          <Link href="/templates/create">Tạo mẫu mới</Link>
+        </Button>
+      </div>
+      <Suspense fallback={<TableSkeleton />}>
+        <TemplateTable searchParams={validatedParams} />
+      </Suspense>
+    </div>
   );
 }
 

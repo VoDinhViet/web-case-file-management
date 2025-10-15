@@ -12,10 +12,6 @@ import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import {
   ArrowUpDown,
-  ChevronLeft,
-  ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
   Eye,
   FileText,
   MoreHorizontal,
@@ -25,6 +21,7 @@ import {
 import { useRouter, useSearchParams } from "next/navigation";
 import * as React from "react";
 import { toast } from "sonner";
+import { CaseStatusCell } from "@/components/features/cases/case-status-cell";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -36,6 +33,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { DataTablePagination } from "@/components/ui/data-table-pagination";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -44,13 +42,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -94,6 +85,18 @@ export const columns: ColumnDef<Case>[] = [
       );
     },
     enableSorting: true,
+  },
+  {
+    accessorKey: "status",
+    header: "Trạng thái",
+    cell: ({ row }) => {
+      return (
+        <CaseStatusCell
+          caseId={row.original.id}
+          currentStatus={row.original.status}
+        />
+      );
+    },
   },
   {
     accessorKey: "applicableLaw",
@@ -283,7 +286,7 @@ export function CasesTableClient({
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     manualPagination: true,
-    pageCount: pagination?.totalPages ?? 0,
+    pageCount: pagination?.totalPages ?? -1,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
     state: {
@@ -296,18 +299,16 @@ export function CasesTableClient({
     },
   });
 
-  const handlePageSizeChange = (value: string) => {
-    const newSize = Number(value);
-    if (!Number.isNaN(newSize)) {
-      const params = new URLSearchParams(searchParams.toString());
-      params.set("limit", String(newSize));
-      params.set("page", "1");
-      router.push(`?${params.toString()}`);
-    }
+  const handlePageSizeChange = (newSize: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("limit", String(newSize));
+    params.set("page", "1");
+    router.push(`?${params.toString()}`);
   };
 
   const handlePageChange = (page: number) => {
-    if (page < 1 || page > table.getPageCount()) return;
+    const totalPages = pagination?.totalPages ?? 1;
+    if (page < 1 || page > totalPages) return;
     const params = new URLSearchParams(searchParams.toString());
     params.set("page", String(page));
     router.push(`?${params.toString()}`);
@@ -377,83 +378,12 @@ export function CasesTableClient({
       </div>
 
       {/* Pagination */}
-      {pagination && pagination.totalPages > 1 && (
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between px-2 py-4 border-t bg-muted/30">
-          <div className="flex items-center gap-2">
-            <p className="text-sm text-muted-foreground">Hiển thị</p>
-            <Select
-              value={`${pagination.limit}`}
-              onValueChange={handlePageSizeChange}
-            >
-              <SelectTrigger className="h-8 w-[70px]">
-                <SelectValue placeholder={pagination.limit} />
-              </SelectTrigger>
-              <SelectContent side="top">
-                {[10, 20, 30, 40, 50].map((pageSize) => (
-                  <SelectItem key={pageSize} value={`${pageSize}`}>
-                    {pageSize}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <p className="text-sm text-muted-foreground">/ trang</p>
-          </div>
-          <div className="flex items-center gap-6">
-            <div className="text-sm text-muted-foreground">
-              Trang{" "}
-              <span className="font-semibold text-foreground">
-                {currentPage}
-              </span>{" "}
-              /{" "}
-              <span className="font-semibold text-foreground">
-                {table.getPageCount()}
-              </span>
-            </div>
-            <div className="flex items-center gap-1">
-              <Button
-                variant="outline"
-                size="icon"
-                className="hidden h-8 w-8 lg:flex"
-                onClick={() => handlePageChange(1)}
-                disabled={currentPage === 1}
-              >
-                <span className="sr-only">Trang đầu</span>
-                <ChevronsLeft className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-8 w-8"
-                onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1}
-              >
-                <span className="sr-only">Trang trước</span>
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-8 w-8"
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === table.getPageCount()}
-              >
-                <span className="sr-only">Trang sau</span>
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                className="hidden h-8 w-8 lg:flex"
-                onClick={() => handlePageChange(table.getPageCount())}
-                disabled={currentPage === table.getPageCount()}
-              >
-                <span className="sr-only">Trang cuối</span>
-                <ChevronsRight className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      <DataTablePagination
+        table={table}
+        totalRecords={pagination?.totalRecords ?? 0}
+        onPageChange={handlePageChange}
+        onPageSizeChange={handlePageSizeChange}
+      />
     </div>
   );
 }

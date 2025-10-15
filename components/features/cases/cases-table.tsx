@@ -1,28 +1,13 @@
 import { getCaseList } from "@/actions/case";
-import { caseSearchParamsSchema } from "@/schemas/case";
+import type { CaseSearchParams } from "@/schemas/case";
 import { CasesTableClient } from "./cases-table-client";
 
 interface CasesTableProps {
-  searchParams: Record<string, string | string[] | undefined>;
+  searchParams: CaseSearchParams;
 }
 
 export async function CasesTable({ searchParams }: CasesTableProps) {
-  const validatedParams = caseSearchParamsSchema.parse(searchParams);
-  const {
-    page: currentPage,
-    limit: pageSize,
-    q: searchQuery,
-    status,
-    userId,
-  } = validatedParams;
-
-  const result = await getCaseList(
-    currentPage,
-    pageSize,
-    searchQuery,
-    status,
-    userId,
-  );
+  const result = await getCaseList(searchParams);
 
   if (!result.success) {
     return (
@@ -39,7 +24,7 @@ export async function CasesTable({ searchParams }: CasesTableProps) {
     <CasesTableClient
       cases={cases}
       pagination={pagination}
-      currentPage={currentPage}
+      currentPage={pagination?.currentPage || 1}
     />
   );
 }

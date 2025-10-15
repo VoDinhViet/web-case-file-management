@@ -12,10 +12,6 @@ import { vi } from "date-fns/locale";
 import {
   ArrowUpDown,
   Calendar,
-  ChevronLeft,
-  ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
   FileText,
   MoreHorizontal,
   Pencil,
@@ -36,6 +32,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { DataTablePagination } from "@/components/ui/data-table-pagination";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -44,13 +41,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -286,7 +276,7 @@ export default function TemplateTableClient({
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     manualPagination: true,
-    pageCount: pagination?.totalPages ?? 0,
+    pageCount: pagination?.totalPages ?? -1,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
     state: {
@@ -299,18 +289,16 @@ export default function TemplateTableClient({
     },
   });
 
-  const handlePageSizeChange = (value: string) => {
-    const newSize = Number(value);
-    if (!Number.isNaN(newSize)) {
-      const params = new URLSearchParams(searchParams.toString());
-      params.set("limit", String(newSize));
-      params.set("page", "1");
-      router.push(`?${params.toString()}`);
-    }
+  const handlePageSizeChange = (newSize: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("limit", String(newSize));
+    params.set("page", "1");
+    router.push(`?${params.toString()}`);
   };
 
   const handlePageChange = (page: number) => {
-    if (page < 1 || page > table.getPageCount()) return;
+    const totalPages = pagination?.totalPages ?? 1;
+    if (page < 1 || page > totalPages) return;
     const params = new URLSearchParams(searchParams.toString());
     params.set("page", String(page));
     router.push(`?${params.toString()}`);
@@ -384,134 +372,12 @@ export default function TemplateTableClient({
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-between px-2">
-        {/* Left side - Record range display */}
-        <div className="text-sm text-muted-foreground">
-          {table.getFilteredSelectedRowModel().rows.length > 0 ? (
-            <span className="font-medium">
-              Đã chọn{" "}
-              <span className="text-foreground">
-                {table.getFilteredSelectedRowModel().rows.length}
-              </span>{" "}
-              trong số {pagination?.totalRecords ?? 0} mẫu
-            </span>
-          ) : (
-            (() => {
-              const totalRecords = pagination?.totalRecords ?? 0;
-              const pageSize = table.getState().pagination.pageSize;
-              const pageIndex = table.getState().pagination.pageIndex;
-              const startRecord =
-                totalRecords === 0 ? 0 : pageIndex * pageSize + 1;
-              const endRecord = Math.min(
-                (pageIndex + 1) * pageSize,
-                totalRecords,
-              );
-
-              const formatNumber = (num: number) => num.toLocaleString("vi-VN");
-
-              return (
-                <span>
-                  Hiển thị{" "}
-                  <span className="font-medium">
-                    {formatNumber(startRecord)}
-                  </span>{" "}
-                  đến{" "}
-                  <span className="font-medium">{formatNumber(endRecord)}</span>{" "}
-                  trong tổng số{" "}
-                  <span className="font-medium">
-                    {formatNumber(totalRecords)}
-                  </span>{" "}
-                  kết quả
-                </span>
-              );
-            })()
-          )}
-        </div>
-
-        {/* Right side - Pagination controls */}
-        <div className="flex items-center sm:space-x-6 lg:space-x-8">
-          {/* Rows per page selector */}
-          <div className="flex items-center space-x-2">
-            <p className="hidden text-sm font-medium sm:block">
-              Số hàng mỗi trang:
-            </p>
-            <Select
-              value={`${table.getState().pagination.pageSize}`}
-              onValueChange={handlePageSizeChange}
-            >
-              <SelectTrigger className="h-8 w-[70px]">
-                <SelectValue
-                  placeholder={`${table.getState().pagination.pageSize}`}
-                />
-              </SelectTrigger>
-              <SelectContent side="top">
-                {[10, 20, 30, 40, 50].map((pageSize) => (
-                  <SelectItem key={pageSize} value={`${pageSize}`}>
-                    {pageSize}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Page info */}
-          <div className="flex w-[100px] items-center justify-center text-sm font-medium">
-            Trang {table.getState().pagination.pageIndex + 1} /{" "}
-            {table.getPageCount()}
-          </div>
-
-          {/* Navigation buttons */}
-          <div className="flex items-center space-x-2">
-            {/* First page */}
-            <Button
-              variant="outline"
-              className="hidden h-8 w-8 p-0 lg:flex"
-              onClick={() => handlePageChange(1)}
-              disabled={!table.getCanPreviousPage()}
-            >
-              <span className="sr-only">Trang đầu</span>
-              <ChevronsLeft className="h-4 w-4" />
-            </Button>
-
-            {/* Previous page */}
-            <Button
-              variant="outline"
-              className="h-8 w-8 p-0"
-              onClick={() =>
-                handlePageChange(table.getState().pagination.pageIndex)
-              }
-              disabled={!table.getCanPreviousPage()}
-            >
-              <span className="sr-only">Trang trước</span>
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-
-            {/* Next page */}
-            <Button
-              variant="outline"
-              className="h-8 w-8 p-0"
-              onClick={() =>
-                handlePageChange(table.getState().pagination.pageIndex + 2)
-              }
-              disabled={!table.getCanNextPage()}
-            >
-              <span className="sr-only">Trang sau</span>
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-
-            {/* Last page */}
-            <Button
-              variant="outline"
-              className="hidden h-8 w-8 p-0 lg:flex"
-              onClick={() => handlePageChange(table.getPageCount())}
-              disabled={!table.getCanNextPage()}
-            >
-              <span className="sr-only">Trang cuối</span>
-              <ChevronsRight className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      </div>
+      <DataTablePagination
+        table={table}
+        totalRecords={pagination?.totalRecords ?? 0}
+        onPageChange={handlePageChange}
+        onPageSizeChange={handlePageSizeChange}
+      />
     </div>
   );
 }

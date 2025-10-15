@@ -18,9 +18,23 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import type { Staff } from "@/types";
 
-export function Header() {
+interface HeaderProps {
+  user: Staff | null;
+}
+
+export function Header({ user }: HeaderProps) {
   const router = useRouter();
+
+  const initials = user?.fullName
+    ? user.fullName
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2)
+    : "UN";
 
   const handleLogout = async () => {
     try {
@@ -157,7 +171,7 @@ export function Header() {
                 <Avatar className="h-9 w-9 border-2 border-primary/10">
                   <AvatarImage src="/avatar.png" alt="User" />
                   <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground text-sm font-semibold">
-                    UN
+                    {initials}
                   </AvatarFallback>
                 </Avatar>
               </Button>
@@ -168,13 +182,15 @@ export function Header() {
                   <Avatar className="h-10 w-10">
                     <AvatarImage src="/avatar.png" alt="User" />
                     <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground">
-                      UN
+                      {initials}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-semibold">User Name</p>
+                    <p className="text-sm font-semibold">
+                      {user?.fullName || "User Name"}
+                    </p>
                     <p className="text-xs text-muted-foreground">
-                      user@example.com
+                      {user?.phone || "Chưa có số điện thoại"}
                     </p>
                   </div>
                 </div>

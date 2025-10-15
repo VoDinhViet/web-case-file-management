@@ -49,7 +49,7 @@ import {
   createTemplateSchema,
 } from "@/schemas/template";
 import type { CaseTemplate } from "@/types";
-import { PreviewFormElement } from "./preview-form-element";
+import { PreviewFormElement } from "./create-template/preview-form-element";
 
 const fieldTypes = [
   { value: "text", label: "Text", icon: TextIcon },

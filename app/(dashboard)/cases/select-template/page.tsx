@@ -10,11 +10,19 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { notFound } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
 export default async function SelectTemplatePage() {
-  const result = await getTemplateList(1, 100); // Get all templates
+  const result = await getTemplateList({
+    page: 1,
+    limit: 100,
+  }); // Get all templates
+
+  if (!result.success) {
+    notFound();
+  }
 
   const templates = result.data || [];
 

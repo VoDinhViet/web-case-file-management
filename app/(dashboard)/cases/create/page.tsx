@@ -1,7 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { getTemplateById } from "@/actions/template";
-import { getSelectStaffs } from "@/actions/user";
 import { CreateCaseForm } from "@/components/features/cases/create-case-form";
+import { getSelectStaffs } from "@/actions";
 
 interface CreateCasePageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;

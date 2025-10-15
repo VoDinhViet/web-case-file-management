@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { getCaseById } from "@/actions/case";
-import { getSelectStaffs } from "@/actions/user";
 import { EditCaseForm } from "@/components/features/cases/edit-case-form";
+import { getSelectStaffs } from "@/actions";
 
 interface EditCasePageProps {
   params: Promise<{

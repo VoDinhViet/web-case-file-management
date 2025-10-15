@@ -1,49 +1,51 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
+import qs from "qs";
 import { api } from "@/lib/api";
-import type { CreateCaseFormData } from "@/schemas/case";
-import type { Case, PaginatedResponse, Pagination } from "@/types";
+import type {
+  CaseSearchParams,
+  CreateCaseFormData,
+  UpdateCaseFormData,
+} from "@/schemas/case";
+import type {
+  ActionResponse,
+  ActionResponseWithMessage,
+  ActionResponseWithPagination,
+  Case,
+  CaseStatusEnum,
+  PaginatedResponse,
+} from "@/types";
 
 export async function getCaseList(
-  page: number = 1,
-  limit: number = 10,
-  search?: string,
-  status?: string,
-  userId?: string,
-): Promise<{
-  success: boolean;
-  data?: Case[];
-  pagination?: Pagination;
-  error?: string;
-}> {
+  params: CaseSearchParams,
+): Promise<ActionResponseWithPagination<Case[]>> {
   try {
     const cookieStore = await cookies();
     const accessToken = cookieStore.get("access_token")?.value;
 
-    let url = `/api/v1/cases?page=${page}&limit=${limit}`;
-    if (search) {
-      url += `&q=${encodeURIComponent(search)}`;
-    }
-    if (status && status !== "all") {
-      url += `&status=${encodeURIComponent(status)}`;
-    }
-    if (userId) {
-      url += `&userId=${encodeURIComponent(userId)}`;
-    }
-
-    const result = await api.get<PaginatedResponse<Case>>(url, {
-      headers: { Authorization: `Bearer ${accessToken}` },
+    const queryParams = qs.stringify(params, {
+      skipNulls: true,
+      addQueryPrefix: true,
     });
+
+    const result = await api.get<PaginatedResponse<Case>>(
+      `/api/v1/cases${queryParams}`,
+      {
+        headers: { Authorization: `Bearer ${accessToken}` },
+        next: {
+          tags: ["cases"],
+        },
+      },
+    );
 
     return {
       success: true,
       data: result.data,
       pagination: result.pagination,
     };
-  } catch (error) {
-    console.error("Error fetching case list:", error);
+  } catch {
     return {
       success: false,
       error: "Không thể tải danh sách vụ án",
@@ -51,11 +53,9 @@ export async function getCaseList(
   }
 }
 
-export async function getCaseById(caseId: string): Promise<{
-  success: boolean;
-  data?: Case;
-  error?: string;
-}> {
+export async function getCaseById(
+  caseId: string,
+): Promise<ActionResponse<Case>> {
   try {
     const cookieStore = await cookies();
     const accessToken = cookieStore.get("access_token")?.value;
@@ -64,26 +64,15 @@ export async function getCaseById(caseId: string): Promise<{
       headers: { Authorization: `Bearer ${accessToken}` },
     });
 
-    return {
-      success: true,
-      data: result,
-    };
-  } catch (error) {
-    console.error("Error fetching case:", error);
-    return {
-      success: false,
-      error: "Không thể tải thông tin vụ án",
-    };
+    return { success: true, data: result };
+  } catch {
+    return { success: false, error: "Không thể tải thông tin vụ án" };
   }
 }
 
 export async function createCase(
   data: CreateCaseFormData | Record<string, unknown>,
-): Promise<{
-  success: boolean;
-  message?: string;
-  error?: string;
-}> {
+): Promise<ActionResponseWithMessage> {
   try {
     const cookieStore = await cookies();
     const accessToken = cookieStore.get("access_token")?.value;
@@ -92,28 +81,20 @@ export async function createCase(
       headers: { Authorization: `Bearer ${accessToken}` },
     });
 
-    revalidatePath("/cases");
+    revalidateTag("cases");
 
     return { success: true, message: "Tạo vụ án thành công" };
   } catch (error) {
-    console.error("Error creating case:", error);
     const errorMessage =
       error instanceof Error ? error.message : "Không thể tạo vụ án";
-    return {
-      success: false,
-      error: errorMessage,
-    };
+    return { success: false, error: errorMessage };
   }
 }
 
 export async function updateCase(
   caseId: string,
-  data: Partial<CreateCaseFormData>,
-): Promise<{
-  success: boolean;
-  message?: string;
-  error?: string;
-}> {
+  data: UpdateCaseFormData,
+): Promise<ActionResponseWithMessage> {
   try {
     const cookieStore = await cookies();
     const accessToken = cookieStore.get("access_token")?.value;
@@ -122,26 +103,19 @@ export async function updateCase(
       headers: { Authorization: `Bearer ${accessToken}` },
     });
 
-    revalidatePath("/cases");
-    revalidatePath(`/cases/${caseId}`);
+    revalidateTag("cases");
 
     return { success: true, message: "Cập nhật vụ án thành công" };
   } catch (error) {
-    console.error("Error updating case:", error);
     const errorMessage =
       error instanceof Error ? error.message : "Không thể cập nhật vụ án";
-    return {
-      success: false,
-      error: errorMessage,
-    };
+    return { success: false, error: errorMessage };
   }
 }
 
-export async function deleteCase(caseId: string): Promise<{
-  success: boolean;
-  message?: string;
-  error?: string;
-}> {
+export async function deleteCase(
+  caseId: string,
+): Promise<ActionResponseWithMessage> {
   try {
     const cookieStore = await cookies();
     const accessToken = cookieStore.get("access_token")?.value;
@@ -150,13 +124,133 @@ export async function deleteCase(caseId: string): Promise<{
       headers: { Authorization: `Bearer ${accessToken}` },
     });
 
-    revalidatePath("/cases");
+    revalidateTag("cases");
 
     return { success: true, message: "Đã xóa vụ án thành công" };
+  } catch {
+    return { success: false, error: "Không thể xóa vụ án" };
+  }
+}
+
+export async function updateCaseStatus(
+  caseId: string,
+  status: CaseStatusEnum,
+): Promise<ActionResponseWithMessage> {
+  try {
+    const cookieStore = await cookies();
+    const accessToken = cookieStore.get("access_token")?.value;
+
+    await api.put(
+      `/api/v1/cases/${caseId}`,
+      { status },
+      {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      },
+    );
+
+    revalidateTag("cases");
+
+    return { success: true, message: "Cập nhật trạng thái thành công" };
   } catch (error) {
-    console.error("Error deleting case:", error);
     const errorMessage =
-      error instanceof Error ? error.message : "Không thể xóa vụ án";
+      error instanceof Error ? error.message : "Không thể cập nhật trạng thái";
+    return { success: false, error: errorMessage };
+  }
+}
+
+export async function exportCaseReport(
+  caseId: string,
+  format: "pdf" | "docx",
+): Promise<ActionResponse<Blob>> {
+  try {
+    const cookieStore = await cookies();
+    const accessToken = cookieStore.get("access_token")?.value;
+
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/reports/export?caseId=${caseId}&format=${format}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error("Export failed");
+    }
+
+    const blob = await response.blob();
+    return { success: true, data: blob };
+  } catch (error) {
+    console.error("Export error:", error);
+    return { success: false, error: "Không thể xuất file" };
+  }
+}
+
+export async function getCasePlan(caseId: string): Promise<
+  ActionResponse<{
+    investigationResult: string;
+    exhibits: string[];
+    nextInvestigationPurpose: string;
+    nextInvestigationContent: string[];
+    participatingForces: string[];
+  }>
+> {
+  try {
+    const cookieStore = await cookies();
+    const accessToken = cookieStore.get("access_token")?.value;
+
+    const result = await api.get<{
+      investigationResult: string;
+      exhibits: string[];
+      nextInvestigationPurpose: string;
+      nextInvestigationContent: string[];
+      participatingForces: string[];
+    }>(`/api/v1/cases/${caseId}/plan`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+
+    return { success: true, data: result };
+  } catch {
+    return {
+      success: false,
+      error: "Không thể tải kế hoạch",
+      data: {
+        investigationResult: "",
+        exhibits: [],
+        nextInvestigationPurpose: "",
+        nextInvestigationContent: [],
+        participatingForces: [],
+      },
+    };
+  }
+}
+
+export async function updateCasePlan(
+  caseId: string,
+  data: {
+    investigationResult: string;
+    exhibits: string[];
+    nextInvestigationPurpose: string;
+    nextInvestigationContent: string[];
+    participatingForces: string[];
+  },
+): Promise<ActionResponseWithMessage> {
+  try {
+    const cookieStore = await cookies();
+    const accessToken = cookieStore.get("access_token")?.value;
+
+    await api.put(`/api/v1/cases/${caseId}/plan`, data, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+
+    revalidateTag("cases");
+
+    return { success: true, message: "Đã lưu kế hoạch thành công" };
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Không thể lưu kế hoạch";
     return { success: false, error: errorMessage };
   }
 }

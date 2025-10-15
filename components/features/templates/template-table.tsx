@@ -1,26 +1,13 @@
 import { getTemplateList } from "@/actions/template";
-import { templateSearchParamsSchema } from "@/schemas/template";
+import type { TemplateSearchParams } from "@/schemas/template";
 import TemplateTableClient from "./template-table-client";
 
 interface TemplateTableProps {
-  searchParams: Record<string, string | string[] | undefined>;
+  searchParams: TemplateSearchParams;
 }
 
 export async function TemplateTable({ searchParams }: TemplateTableProps) {
-  const validatedParams = templateSearchParamsSchema.parse(searchParams);
-  const {
-    page: currentPage,
-    limit: pageSize,
-    q: searchQuery,
-    category,
-  } = validatedParams;
-
-  const result = await getTemplateList(
-    currentPage,
-    pageSize,
-    searchQuery,
-    category,
-  );
+  const result = await getTemplateList(searchParams);
 
   if (!result.success) {
     return (
@@ -37,7 +24,7 @@ export async function TemplateTable({ searchParams }: TemplateTableProps) {
     <TemplateTableClient
       templates={templates}
       pagination={pagination}
-      currentPage={currentPage}
+      currentPage={pagination?.currentPage || 1}
     />
   );
 }
