@@ -1,19 +1,16 @@
 "use server";
 
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 import { api } from "@/lib/api";
+import type { ActionResponse, ActionResponseWithMessage } from "@/types";
 
 interface ReferralCodeResponse {
   code: string;
   createdAt: string;
 }
 
-export async function getReferralCode(): Promise<{
-  success: boolean;
-  data?: string;
-  error?: string;
-}> {
+export async function getReferralCode(): Promise<ActionResponse<string>> {
   try {
     const cookieStore = await cookies();
     const accessToken = cookieStore.get("access_token")?.value;
@@ -23,9 +20,8 @@ export async function getReferralCode(): Promise<{
       {
         headers: { Authorization: `Bearer ${accessToken}` },
         next: {
-            tags: ["referral-code"],
-        }
-        
+          tags: ["referral-code"],
+        },
       },
     );
     console.log("result", result);
@@ -36,12 +32,9 @@ export async function getReferralCode(): Promise<{
   }
 }
 
-export async function regenerateReferralCode(): Promise<{
-  success: boolean;
-  data?: string;
-  message?: string;
-  error?: string;
-}> {
+export async function regenerateReferralCode(): Promise<
+  ActionResponseWithMessage<string>
+> {
   try {
     const cookieStore = await cookies();
     const accessToken = cookieStore.get("access_token")?.value;

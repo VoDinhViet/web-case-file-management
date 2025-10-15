@@ -1,42 +1,50 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
+import qs from "qs";
 import { api } from "@/lib/api";
-import type { CreateStaffFormData, EditStaffFormData } from "@/schemas/staff";
-import type { PaginatedResponse, Pagination, Staff } from "@/types";
+import type {
+  CreateStaffFormData,
+  EditStaffFormData,
+  StaffSearchParams,
+} from "@/schemas/staff";
+import type {
+  ActionResponse,
+  ActionResponseWithMessage,
+  ActionResponseWithPagination,
+  PaginatedResponse,
+  SelectStaffs,
+  Staff,
+} from "@/types";
 
 export async function getStaffList(
-  page: number = 1,
-  limit: number = 10,
-  search?: string,
-): Promise<{
-  success: boolean;
-  data?: Staff[];
-  pagination?: Pagination;
-  error?: string;
-}> {
+  params: StaffSearchParams,
+): Promise<ActionResponseWithPagination<Staff[]>> {
   try {
     const cookieStore = await cookies();
     const accessToken = cookieStore.get("access_token")?.value;
-
-    let url = `/api/v1/users?page=${page}&limit=${limit}`;
-    if (search) {
-      url += `&q=${encodeURIComponent(search)}`;
-    }
-  
-  
-    const result = await api.get<PaginatedResponse<Staff>>(url, {
-      headers: { Authorization: `Bearer ${accessToken}` },
+    const queryParams = qs.stringify(params, {
+      skipNulls: true,
+      addQueryPrefix: true,
     });
+
+    const result = await api.get<PaginatedResponse<Staff>>(
+      `/api/v1/users${queryParams}`,
+      {
+        headers: { Authorization: `Bearer ${accessToken}` },
+        next: {
+          tags: ["staff"],
+        },
+      },
+    );
 
     return {
       success: true,
       data: result.data,
       pagination: result.pagination,
     };
-  } catch (error) {
-  
+  } catch {
     return {
       success: false,
       error: "Không thể tải danh sách nhân viên",
@@ -44,11 +52,9 @@ export async function getStaffList(
   }
 }
 
-export async function createStaff(data: CreateStaffFormData): Promise<{
-  success: boolean;
-  message?: string;
-  error?: string;
-}> {
+export async function createStaff(
+  data: CreateStaffFormData,
+): Promise<ActionResponseWithMessage> {
   try {
     const cookieStore = await cookies();
     const accessToken = cookieStore.get("access_token")?.value;
@@ -57,7 +63,8 @@ export async function createStaff(data: CreateStaffFormData): Promise<{
       headers: { Authorization: `Bearer ${accessToken}` },
     });
 
-    revalidatePath("/staff");
+    // revalidatePath("/staff");
+    revalidateTag("staff");
 
     return { success: true, message: "Thêm nhân viên thành công" };
   } catch (error) {
@@ -71,11 +78,9 @@ export async function createStaff(data: CreateStaffFormData): Promise<{
   }
 }
 
-export async function getStaffById(staffId: string): Promise<{
-  success: boolean;
-  data?: Staff;
-  error?: string;
-}> {
+export async function getStaffById(
+  staffId: string,
+): Promise<ActionResponse<Staff>> {
   try {
     const cookieStore = await cookies();
     const accessToken = cookieStore.get("access_token")?.value;
@@ -94,11 +99,7 @@ export async function getStaffById(staffId: string): Promise<{
 export async function updateStaff(
   staffId: string,
   data: EditStaffFormData,
-): Promise<{
-  success: boolean;
-  message?: string;
-  error?: string;
-}> {
+): Promise<ActionResponseWithMessage> {
   try {
     const cookieStore = await cookies();
     const accessToken = cookieStore.get("access_token")?.value;
@@ -118,11 +119,9 @@ export async function updateStaff(
   }
 }
 
-export async function deleteStaff(staffId: string): Promise<{
-  success: boolean;
-  message?: string;
-  error?: string;
-}> {
+export async function deleteStaff(
+  staffId: string,
+): Promise<ActionResponseWithMessage> {
   try {
     const cookieStore = await cookies();
     const accessToken = cookieStore.get("access_token")?.value;
@@ -136,5 +135,35 @@ export async function deleteStaff(staffId: string): Promise<{
     return { success: true, message: "Đã xóa nhân viên thành công" };
   } catch {
     return { success: false, error: "Không thể xóa nhân viên" };
+  }
+}
+
+// Get all users for select dropdown
+export async function getSelectStaffs(q?: string): Promise<SelectStaffs[]> {
+  try {
+    const cookieStore = await cookies();
+    const accessToken = cookieStore.get("access_token")?.value;
+
+    const searchQuery = qs.stringify(
+      { q },
+      { skipNulls: true, addQueryPrefix: true },
+    );
+
+    const result = await api.get<SelectStaffs[]>(
+      `/api/v1/users/all/select${searchQuery}`,
+      {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      },
+    );
+
+    // Map to SelectUser format
+    return result.map((user) => ({
+      id: user.id,
+      fullName: user.fullName,
+      phone: user.phone,
+    }));
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    return [];
   }
 }

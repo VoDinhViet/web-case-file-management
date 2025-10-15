@@ -5,4 +5,3 @@ export * from "./referral";
 export * from "./reports";
 export * from "./staff";
 export * from "./template";
-export * from "./user";

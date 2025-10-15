@@ -7,18 +7,14 @@ import qs from "qs";
 import { api } from "@/lib/api";
 import type { CaseStatsResponse, StatusStats } from "@/types";
 import { CaseStatusEnum } from "@/types";
+import type { DashboardSearchParams } from "@/schemas/dashboard";
 
 api.setBaseUrl(process.env.NEXT_PUBLIC_API_URL || "");
 
-interface GetCaseStatsParams {
-  userId?: string;
-  startDate?: string; // ISO date string
-  endDate?: string; // ISO date string
-}
-
 export async function getCaseStats(
-  params?: GetCaseStatsParams,
+  params?: DashboardSearchParams,
 ): Promise<StatusStats[]> {
+  console.log("params", params);
   try {
     const queryString = qs.stringify(params, { skipNulls: true });
     const cookieStore = await cookies();

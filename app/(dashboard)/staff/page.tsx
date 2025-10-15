@@ -1,4 +1,6 @@
 import { Suspense } from "react";
+import { CreateStaffDialog } from "@/components/features/staff/create-staff-dialog";
+import { StaffSearch } from "@/components/features/staff/staff-search";
 import { StaffTable } from "@/components/features/staff/staff-table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { staffSearchParamsSchema } from "@/schemas/staff";
@@ -10,12 +12,18 @@ interface StaffPageProps {
 export default async function StaffPage({ searchParams }: StaffPageProps) {
   const params = await searchParams;
   const validatedParams = staffSearchParamsSchema.parse(params);
-  const key = `${validatedParams.page}-${validatedParams.q || ""}`;
-
   return (
-    <Suspense fallback={<TableSkeleton />} key={key}>
-      <StaffTable searchParams={params} />
-    </Suspense>
+    <>
+      <div className="flex items-center justify-between gap-4">
+        <Suspense fallback={<Skeleton className="h-10 w-full max-w-sm" />}>
+          <StaffSearch />
+        </Suspense>
+        <CreateStaffDialog />
+      </div>
+      <Suspense fallback={<TableSkeleton />}>
+        <StaffTable searchParams={validatedParams} />
+      </Suspense>
+    </>
   );
 }
 

@@ -39,32 +39,21 @@ export function EditStaffForm({
 
   async function onSubmit(values: EditStaffFormData) {
     startTransition(async () => {
-      try {
-        const { password, ...rest } = values;
-        const payload = password ? values : rest;
-        const result = await updateStaff(staff.id, payload);
-        if (result.success) {
-          toast.success(result.message || "Cập nhật nhân viên thành công");
-          onSuccess?.(false);
-          router.refresh();
-        } else {
-          toast.error(result.error || "Có lỗi xảy ra");
-        }
-      } catch (error) {
-        console.error("Error:", error);
-        toast.error("Đã xảy ra lỗi khi cập nhật nhân viên");
+      const { password, ...rest } = values;
+      const payload = password ? values : rest;
+      const result = await updateStaff(staff.id, payload);
+      if (result.success) {
+        toast.success(result.message || "Cập nhật nhân viên thành công");
+        onSuccess?.(false);
+        router.refresh();
+      } else {
+        toast.error(result.error || "Có lỗi xảy ra");
       }
     });
   }
 
   return (
     <div className="space-y-4">
-      <div>
-        <p className="font-semibold">Chỉnh sửa nhân viên</p>
-        <p className="text-sm text-muted-foreground">
-          Cập nhật thông tin cơ bản
-        </p>
-      </div>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField

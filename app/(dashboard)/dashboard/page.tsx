@@ -3,27 +3,29 @@ import { getCurrentUser } from "@/actions/auth";
 import { ReferralCardWrapper } from "@/components/features/dashboard/referral-card-wrapper";
 import { StatusStats } from "@/components/features/dashboard/status-stats";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  dashboardSearchParamsSchema,
+} from "@/schemas/dashboard";
 import { RoleEnum } from "@/types/staff";
 
 export default async function DashboardPage({
   searchParams,
 }: {
-  searchParams?: { startDate?: string; endDate?: string };
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const from = searchParams?.startDate;
-  const to = searchParams?.endDate;
-
+  const params = await searchParams;
+  const validatedParams = dashboardSearchParamsSchema.parse(params);
   // Get current user to check role
-  const { data: user } = await getCurrentUser();
-  const isAdmin = user?.role === RoleEnum.ADMIN;
+  const { data: myUser } = await getCurrentUser();
+  const isAdministrator = myUser?.role === RoleEnum.ADMIN;
 
   return (
     <div className="space-y-6">
       <Suspense fallback={<StatsSkeleton />}>
-        <StatusStats from={from} to={to} />
+        <StatusStats validatedParams={validatedParams} />
       </Suspense>
 
-      {isAdmin && (
+      {isAdministrator && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <Suspense fallback={<ReferralSkeleton />}>
             <ReferralCardWrapper />

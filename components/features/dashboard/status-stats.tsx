@@ -1,8 +1,10 @@
 import { AlertCircle, CheckCircle2, Clock, Pause, XCircle } from "lucide-react";
 import { getCaseStats } from "@/actions";
 import { cn } from "@/lib/utils";
+import type { DashboardSearchParams } from "@/schemas/dashboard";
 import { CaseStatusEnum } from "@/types";
 import { DateFilter } from "./date-filter";
+import { StaffSelect } from "./staff-select";
 
 const statusConfig = {
   [CaseStatusEnum.PENDING]: {
@@ -37,19 +39,20 @@ const statusConfig = {
   },
 };
 
-export async function StatusStats({
-  from,
-  to,
-}: {
-  from?: string;
-  to?: string;
-}) {
-  const stats = await getCaseStats({ startDate: from, endDate: to });
+interface StatusStatsProps {
+  validatedParams: DashboardSearchParams;
+}
+
+export async function StatusStats({ validatedParams }: StatusStatsProps) {
+  const stats = await getCaseStats(validatedParams);
 
   return (
     <div className="space-y-4">
       {/* Filters */}
-      <DateFilter />
+      <div className="flex flex-wrap items-center gap-4">
+        <StaffSelect />
+        <DateFilter />
+      </div>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
         {stats.map((stat) => {
           const config = statusConfig[stat.status];
@@ -77,11 +80,11 @@ export async function StatusStats({
                 </div>
                 <div
                   className={cn(
-                    "flex h-14 w-14 items-center justify-center rounded-xl transition-transform group-hover:scale-110",
+                    "flex size-12 items-center justify-center rounded-xl transition-transform group-hover:scale-110",
                     config.bgColor,
                   )}
                 >
-                  <Icon className={cn("h-7 w-7", config.color)} />
+                  <Icon className={cn("size-5", config.color)} />
                 </div>
               </div>
             </div>

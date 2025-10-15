@@ -36,7 +36,6 @@ export function CreateStaffDialog() {
       fullName: "",
       phone: "",
       password: "",
-      referralCode: "",
     },
   });
 
@@ -48,8 +47,6 @@ export function CreateStaffDialog() {
         toast.success(result.message || "Thêm nhân viên thành công");
         form.reset();
         setOpen(false);
-        // Reload page to show new staff
-        window.location.reload();
       } else {
         toast.error(result.error || "Có lỗi xảy ra");
       }
@@ -127,24 +124,6 @@ export function CreateStaffDialog() {
                     <Input
                       type="password"
                       placeholder="••••••••"
-                      {...field}
-                      disabled={isLoading}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="referralCode"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Mã giới thiệu</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="TAQTNA (tùy chọn)"
                       {...field}
                       disabled={isLoading}
                     />

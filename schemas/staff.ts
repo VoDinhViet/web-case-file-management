@@ -14,17 +14,14 @@ export const createStaffSchema = z.object({
     .string()
     .min(6, "Mật khẩu phải có ít nhất 6 ký tự")
     .max(50, "Mật khẩu không được quá 50 ký tự"),
-  referralCode: z.string().optional(),
 });
 
-// password và referralCode không bắt buộc
+// password không bắt buộc
 export const editStaffSchema = z.object({
   fullName: z.string().optional(),
   phone: z.string().optional(),
   password: z.string().optional(),
-  referralCode: z.string().optional(),
 });
-
 
 export const staffSearchParamsSchema = z.object({
   page: z.coerce.number().int().positive().default(1).catch(1),

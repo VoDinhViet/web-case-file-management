@@ -1,20 +1,13 @@
 import { getStaffList } from "@/actions";
-import { staffSearchParamsSchema } from "@/schemas/staff";
+import type { StaffSearchParams } from "@/schemas/staff";
 import StaffTableClient from "./staff-table-client";
 
 interface StaffTableProps {
-  searchParams: Record<string, string | string[] | undefined>;
+  searchParams: StaffSearchParams;
 }
 
 export async function StaffTable({ searchParams }: StaffTableProps) {
-  const validatedParams = staffSearchParamsSchema.parse(searchParams);
-  const {
-    page: currentPage,
-    limit: pageSize,
-    q: searchQuery,
-  } = validatedParams;
-
-  const result = await getStaffList(currentPage, pageSize, searchQuery);
+  const result = await getStaffList(searchParams);
 
   if (!result.success) {
     return (
@@ -31,7 +24,7 @@ export async function StaffTable({ searchParams }: StaffTableProps) {
     <StaffTableClient
       staff={staff}
       pagination={pagination}
-      currentPage={currentPage}
+      currentPage={pagination?.currentPage || 1}
     />
   );
 }

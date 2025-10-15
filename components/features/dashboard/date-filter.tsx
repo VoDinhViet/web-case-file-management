@@ -27,52 +27,60 @@ export function DateFilter() {
     to: toParam ? new Date(toParam) : undefined,
   });
 
-  const apply = () => {
+  const handleDateSelect = (selectedDate: DateRange | undefined) => {
+    setDate(selectedDate);
+
+    // Auto-apply filter when date is selected
     const params = new URLSearchParams(searchParams.toString());
-    if (date?.from) params.set("startDate", date.from.toISOString());
-    else params.delete("startDate");
-    if (date?.to) params.set("endDate", date.to.toISOString());
-    else params.delete("endDate");
+    if (selectedDate?.from) {
+      params.set("startDate", selectedDate.from.toISOString());
+    } else {
+      params.delete("startDate");
+    }
+
+    if (selectedDate?.to) {
+      params.set("endDate", selectedDate.to.toISOString());
+    } else {
+      params.delete("endDate");
+    }
+
     router.push(`${pathname}?${params.toString()}`);
   };
 
   return (
-    <div className="flex items-center gap-3">
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            className={cn(
-              "w-[260px] justify-start text-left font-normal",
-              !date && "text-muted-foreground",
-            )}
-          >
-            <CalendarIcon className="mr-2 h-4 w-4" />
-            {date?.from ? (
-              date.to ? (
-                <>
-                  {format(date.from, "dd/MM/yyyy")} -{" "}
-                  {format(date.to, "dd/MM/yyyy")}
-                </>
-              ) : (
-                format(date.from, "dd/MM/yyyy")
-              )
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          className={cn(
+            "w-[280px] justify-start text-left font-normal",
+            !date && "text-muted-foreground",
+          )}
+        >
+          <CalendarIcon className="mr-2 h-4 w-4" />
+          {date?.from ? (
+            date.to ? (
+              <>
+                {format(date.from, "dd/MM/yyyy")} -{" "}
+                {format(date.to, "dd/MM/yyyy")}
+              </>
             ) : (
-              <span>Chọn khoảng ngày</span>
-            )}
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
-          <Calendar
-            initialFocus
-            mode="range"
-            selected={date}
-            onSelect={setDate}
-            numberOfMonths={2}
-          />
-        </PopoverContent>
-      </Popover>
-      <Button onClick={apply}>Lọc</Button>
-    </div>
+              format(date.from, "dd/MM/yyyy")
+            )
+          ) : (
+            <span>Chọn khoảng ngày</span>
+          )}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-0" align="start">
+        <Calendar
+          initialFocus
+          mode="range"
+          selected={date}
+          onSelect={handleDateSelect}
+          numberOfMonths={2}
+        />
+      </PopoverContent>
+    </Popover>
   );
 }
