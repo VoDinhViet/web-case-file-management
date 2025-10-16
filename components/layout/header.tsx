@@ -1,11 +1,12 @@
 "use client";
 
-import { Bell, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { logout } from "@/actions/auth";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
+import { NotificationList } from "@/components/notification-list";
 import { NotificationPermissionButton } from "@/components/notification-permission-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -82,82 +83,7 @@ export function Header({ user }: HeaderProps) {
           </Button>
 
           {/* Notifications */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="relative h-9 w-9 hover:bg-muted"
-              >
-                <Bell className="h-5 w-5" />
-                <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-red-500 ring-2 ring-background animate-pulse" />
-                <span className="sr-only">Thông báo</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-80">
-              <DropdownMenuLabel className="font-semibold">
-                Thông báo
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <div className="max-h-80 overflow-y-auto">
-                {/* Example notifications */}
-                <DropdownMenuItem className="flex flex-col items-start gap-1 p-3 cursor-pointer">
-                  <div className="flex items-start gap-3 w-full">
-                    <div className="flex-1">
-                      <p className="text-sm font-medium">Vụ án mới được tạo</p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Vụ án "Trộm cắp tài sản" đã được thêm vào hệ thống
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        2 phút trước
-                      </p>
-                    </div>
-                    <span className="h-2 w-2 rounded-full bg-blue-500 mt-1.5" />
-                  </div>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="flex flex-col items-start gap-1 p-3 cursor-pointer">
-                  <div className="flex items-start gap-3 w-full">
-                    <div className="flex-1">
-                      <p className="text-sm font-medium">
-                        Giai đoạn hoàn thành
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Giai đoạn "Điều tra" của vụ án ABC đã được đánh dấu hoàn
-                        thành
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        1 giờ trước
-                      </p>
-                    </div>
-                  </div>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="flex flex-col items-start gap-1 p-3 cursor-pointer">
-                  <div className="flex items-start gap-3 w-full">
-                    <div className="flex-1">
-                      <p className="text-sm font-medium">Nhân viên mới</p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Nguyễn Văn A đã được thêm vào hệ thống
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        3 giờ trước
-                      </p>
-                    </div>
-                  </div>
-                </DropdownMenuItem>
-              </div>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                asChild
-                className="cursor-pointer justify-center text-center"
-              >
-                <Link href="/notifications" className="w-full">
-                  Xem tất cả thông báo
-                </Link>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <NotificationList />
 
           {/* Push Notification Permission */}
           <NotificationPermissionButton variant="ghost" size="icon" />
