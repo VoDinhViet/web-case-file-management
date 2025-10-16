@@ -8,7 +8,7 @@ import type { Staff } from "@/types";
 interface LoginResponse {
   accessToken: string;
   refreshToken: string;
-  expiresIn: number;
+  tokenExpires: number; // Timestamp in milliseconds
 }
 
 interface LoginResult {
@@ -32,8 +32,37 @@ export async function login(rawData: LoginFormData): Promise<LoginResult> {
     const result = await api.post<LoginResponse>("/api/v1/auth/login", rawData);
 
     const cookieStore = await cookies();
-    cookieStore.set("access_token", result.accessToken);
-    cookieStore.set("refresh_token", result.refreshToken);
+
+    // tokenExpires from backend is already a timestamp (milliseconds)
+    const expiryTime = result.tokenExpires;
+
+    // Calculate maxAge in seconds for cookie
+    const maxAgeSeconds = Math.floor((expiryTime - Date.now()) / 1000);
+
+    cookieStore.set("access_token", result.accessToken, {
+      path: "/",
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      maxAge: maxAgeSeconds,
+    });
+
+    cookieStore.set("refresh_token", result.refreshToken, {
+      path: "/",
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+    });
+
+    // Store token expiry time for middleware
+    cookieStore.set("token_expiry", expiryTime.toString(), {
+      path: "/",
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      maxAge: maxAgeSeconds,
+    });
 
     return { success: true, message: "Đăng nhập thành công", data: result };
   } catch (error) {
@@ -67,6 +96,7 @@ export async function logout() {
     const cookieStore = await cookies();
     cookieStore.delete("access_token");
     cookieStore.delete("refresh_token");
+    cookieStore.delete("token_expiry");
 
     return { success: true };
   } catch {

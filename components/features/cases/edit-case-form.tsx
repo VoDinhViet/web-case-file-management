@@ -82,6 +82,7 @@ export function EditCaseForm({
   selectStaffs: selectUsers,
 }: EditCaseFormProps) {
   const router = useRouter();
+  console.log("caseData", caseData);
   const [isPending, startTransition] = useTransition();
 
   // Convert case to template structure
@@ -125,7 +126,7 @@ export function EditCaseForm({
       description: caseData.description || "",
       applicableLaw: caseData.applicableLaw || "",
       userId: caseData.userId || "",
-      numberOfDefendants: caseData.numberOfDefendants || 1,
+      numberOfDefendants: Number(caseData.numberOfDefendants) || 1,
       crimeType: caseData.crimeType || "",
       startDate: caseData.startDate ? new Date(caseData.startDate) : new Date(),
       endDate: caseData.endDate ? new Date(caseData.endDate) : null,
@@ -150,12 +151,6 @@ export function EditCaseForm({
               id: field.id,
               fieldLabel: field.fieldLabel,
               fieldValue: newValue != null ? String(newValue) : undefined,
-              placeholder: "",
-              defaultValue: "",
-              description: "",
-              isRequired: false,
-              isEditable: true,
-              index: fieldIndex,
             };
           }),
         }));
@@ -208,13 +203,13 @@ export function EditCaseForm({
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           {/* Basic Info Card */}
           <Card>
-            <CardHeader className="border-b bg-muted/30">
+            <CardHeader>
               <CardTitle>Thông tin cơ bản</CardTitle>
               <CardDescription>
                 Các trường thông tin cơ bản của vụ án
               </CardDescription>
             </CardHeader>
-            <CardContent className="pt-6">
+            <CardContent>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 {/* Tên vụ án */}
                 <FormField

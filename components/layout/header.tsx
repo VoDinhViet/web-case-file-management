@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { logout } from "@/actions/auth";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
+import { NotificationPermissionButton } from "@/components/notification-permission-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -157,6 +158,9 @@ export function Header({ user }: HeaderProps) {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+
+          {/* Push Notification Permission */}
+          <NotificationPermissionButton variant="ghost" size="icon" />
 
           {/* Theme Toggle */}
           <ThemeToggle />
