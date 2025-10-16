@@ -20,7 +20,9 @@ export const requestNotificationPermission =
       return "denied";
     }
 
+    console.log("📝 Requesting notification permission...");
     const permission = await Notification.requestPermission();
+    console.log("📝 Permission result:", permission);
     return permission;
   };
 
@@ -29,9 +31,19 @@ export const requestNotificationPermission =
  */
 export const getFCMToken = async (): Promise<string | null> => {
   try {
+    // Check browser support first
+    if (!isNotificationSupported()) {
+      console.warn(
+        "Browser does not support required features for push notifications",
+      );
+      return null;
+    }
+
     const messaging = getFirebaseMessaging();
     if (!messaging) {
-      console.warn("Firebase Messaging is not available");
+      console.warn(
+        "Firebase Messaging is not available (browser not supported or initialization failed)",
+      );
       return null;
     }
 
@@ -44,57 +56,27 @@ export const getFCMToken = async (): Promise<string | null> => {
 
     // Register service worker
     if ("serviceWorker" in navigator) {
-      // Register service worker
-      const registration = await navigator.serviceWorker.register(
-        "/firebase-messaging-sw.js",
-      );
-      console.log("Service Worker registered:", registration);
-
-      // Wait for service worker to be ready and active
-      await navigator.serviceWorker.ready;
-      console.log("Service Worker is ready");
-
-      // Ensure service worker is active
-      if (!registration.active) {
-        console.log("Waiting for service worker to activate...");
-        await new Promise<void>((resolve) => {
-          const checkActive = () => {
-            if (registration.active) {
-              resolve();
-            } else {
-              setTimeout(checkActive, 100);
-            }
-          };
-          checkActive();
-        });
-      }
-
-      // Get FCM token
       const vapidKey = process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY;
-      console.log(
-        "VAPID Key:",
-        vapidKey ? `${vapidKey.substring(0, 20)}...` : "NOT FOUND",
-      );
-      console.log("VAPID Key length:", vapidKey?.length);
 
       if (!vapidKey) {
         console.error("VAPID key is not configured");
         return null;
       }
 
+      // Register or get existing service worker
+      let registration = await navigator.serviceWorker.getRegistration("/");
+
+      if (!registration) {
+        registration = await navigator.serviceWorker.register(
+          "/firebase-messaging-sw.js",
+        );
+      }
+
+      // Get FCM token immediately (getToken will wait for SW if needed)
       const token = await getToken(messaging, {
         vapidKey,
         serviceWorkerRegistration: registration,
       });
-
-      if (token) {
-        console.log("✅ FCM Token received successfully!");
-        console.log("FCM Token (full):", token);
-        console.log("FCM Token (preview):", `${token.substring(0, 50)}...`);
-        console.log("FCM Token length:", token.length);
-      } else {
-        console.warn("❌ No FCM token received");
-      }
 
       return token;
     }
@@ -102,6 +84,7 @@ export const getFCMToken = async (): Promise<string | null> => {
     return null;
   } catch (error) {
     console.error("Error getting FCM token:", error);
+    // Don't throw, just return null to gracefully handle unsupported browsers
     return null;
   }
 };
@@ -111,24 +94,19 @@ export const getFCMToken = async (): Promise<string | null> => {
  */
 export const sendTokenToBackend = async (token: string): Promise<boolean> => {
   try {
-    console.log("📤 Sending FCM token to backend...");
-
     // Dynamically import to avoid circular dependencies
     const { registerFCMToken } = await import("@/actions/notification");
 
     const result = await registerFCMToken(token);
 
     if (!result.success) {
-      console.error("❌ Failed to register token:", result.error);
+      console.error("Failed to register FCM token:", result.error);
       return false;
     }
 
-    console.log("✅ Token sent to backend successfully:", result.message);
-    console.log("📊 Backend response data:", result.data);
-
     return true;
   } catch (error) {
-    console.error("❌ Error sending token to backend:", error);
+    console.error("Error sending FCM token to backend:", error);
     return false;
   }
 };
@@ -139,31 +117,38 @@ export const sendTokenToBackend = async (token: string): Promise<boolean> => {
 export const onForegroundMessage = (
   callback: (payload: NotificationPayload) => void,
 ): (() => void) => {
-  const messaging = getFirebaseMessaging();
-  if (!messaging) {
+  try {
+    const messaging = getFirebaseMessaging();
+    if (!messaging) {
+      console.warn(
+        "Firebase Messaging not available - foreground notifications disabled",
+      );
+      return () => {};
+    }
+
+    const unsubscribe = onMessage(messaging, (payload) => {
+      callback(payload as NotificationPayload);
+
+      // Show notification even in foreground
+      if (payload.notification) {
+        const { title, body, icon } = payload.notification;
+        if (Notification.permission === "granted") {
+          new Notification(title || "Thông báo mới", {
+            body: body || "",
+            icon: icon || "/favicon.ico",
+            badge: "/favicon.ico",
+            tag: payload.data?.caseId || "notification",
+            data: payload.data,
+          });
+        }
+      }
+    });
+
+    return unsubscribe;
+  } catch (error) {
+    console.error("Error setting up foreground message listener:", error);
     return () => {};
   }
-
-  const unsubscribe = onMessage(messaging, (payload) => {
-    console.log("Foreground message received:", payload);
-    callback(payload as NotificationPayload);
-
-    // Show notification even in foreground
-    if (payload.notification) {
-      const { title, body, icon } = payload.notification;
-      if (Notification.permission === "granted") {
-        new Notification(title || "Thông báo mới", {
-          body: body || "",
-          icon: icon || "/favicon.ico",
-          badge: "/favicon.ico",
-          tag: payload.data?.caseId || "notification",
-          data: payload.data,
-        });
-      }
-    }
-  });
-
-  return unsubscribe;
 };
 
 /**

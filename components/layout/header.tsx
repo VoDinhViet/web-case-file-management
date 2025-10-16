@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { clearFCMCache } from "@/hooks/use-fcm-token";
 import type { Staff } from "@/types";
 
 interface HeaderProps {
@@ -42,6 +43,8 @@ export function Header({ user }: HeaderProps) {
     try {
       const result = await logout();
       if (result.success) {
+        // Clear FCM token cache
+        clearFCMCache();
         toast.success("Đăng xuất thành công");
         router.push("/login");
       } else {

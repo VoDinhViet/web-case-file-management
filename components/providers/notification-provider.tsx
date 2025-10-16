@@ -15,7 +15,7 @@ interface NotificationProviderProps {
  */
 export function NotificationProvider({ children }: NotificationProviderProps) {
   const { lastNotification } = useNotification();
-  const { token, isSupported } = useFCMToken();
+  const { isSupported } = useFCMToken();
 
   useEffect(() => {
     if (!isSupported) {
@@ -44,12 +44,6 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
       });
     }
   }, [lastNotification]);
-
-  useEffect(() => {
-    if (token) {
-      console.log("FCM Token ready:", token);
-    }
-  }, [token]);
 
   return <>{children}</>;
 }

@@ -10,19 +10,6 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Log Firebase config for debugging
-console.log("🔥 Firebase Config:", {
-  apiKey: firebaseConfig.apiKey
-    ? `${firebaseConfig.apiKey.substring(0, 10)}...`
-    : "NOT SET",
-  authDomain: firebaseConfig.authDomain || "NOT SET",
-  projectId: firebaseConfig.projectId || "NOT SET",
-  messagingSenderId: firebaseConfig.messagingSenderId || "NOT SET",
-  appId: firebaseConfig.appId
-    ? `${firebaseConfig.appId.substring(0, 20)}...`
-    : "NOT SET",
-});
-
 let app: FirebaseApp;
 let messaging: Messaging | null = null;
 
@@ -42,9 +29,20 @@ export const getFirebaseMessaging = () => {
     return null;
   }
 
+  // Check if browser supports required APIs
+  if (!("Notification" in window) || !("serviceWorker" in navigator)) {
+    console.warn("Browser does not support Firebase Messaging");
+    return null;
+  }
+
   if (!messaging) {
-    const app = getFirebaseApp();
-    messaging = getMessaging(app);
+    try {
+      const app = getFirebaseApp();
+      messaging = getMessaging(app);
+    } catch (error) {
+      console.error("Failed to initialize Firebase Messaging:", error);
+      return null;
+    }
   }
 
   return messaging;
