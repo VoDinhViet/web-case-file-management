@@ -1,5 +1,5 @@
-import { CaseStatusEnum } from "@/types";
 import { z } from "zod";
+import { CaseStatusEnum } from "@/types";
 
 // Case schema
 export const createCaseSchema = z.object({

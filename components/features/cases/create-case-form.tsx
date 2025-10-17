@@ -19,10 +19,10 @@ import {
 } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
 import { createCaseSchema } from "@/lib/schemas/create-case-schema";
+import type { SelectStaffs } from "@/types";
 import type { Template } from "@/types/template";
 import { RenderFormElement } from "../templates/render-form-element";
 import BasicFormInfoSection from "./basic-form-info-section";
-import type { SelectStaffs } from "@/types";
 
 interface CreateCaseFormProps {
   template: Template;
