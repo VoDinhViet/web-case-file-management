@@ -1,12 +1,7 @@
 "use client";
 
-import { format } from "date-fns";
-import { vi } from "date-fns/locale";
-import { CalendarIcon } from "lucide-react";
 import { use } from "react";
 import type { UseFormReturn } from "react-hook-form";
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import {
   FormControl,
   FormDescription,
@@ -17,11 +12,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
   Select,
   SelectContent,
   SelectItem,
@@ -29,7 +19,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { cn } from "@/lib/utils";
 import type { SelectStaffs } from "@/types";
 
 interface BasicFormInfoSectionProps {
@@ -153,92 +142,6 @@ export default function BasicFormInfoSection({
             <FormMessage />
           </FormItem>
         )}
-      />
-
-      {/* Ngày khởi tố */}
-      <FormField
-        control={form.control}
-        name="startDate"
-        render={({ field }) => {
-          const dateValue = field.value as Date | undefined;
-          return (
-            <FormItem className="flex flex-col">
-              <FormLabel>Ngày khởi tố</FormLabel>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      variant={"outline"}
-                      className={cn(
-                        "pl-3 text-left font-normal",
-                        !dateValue && "text-muted-foreground",
-                      )}
-                    >
-                      {dateValue ? (
-                        format(dateValue, "dd/MM/yyyy")
-                      ) : (
-                        <span>Chọn ngày</span>
-                      )}
-                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    locale={vi}
-                    mode="single"
-                    selected={dateValue}
-                    onSelect={field.onChange}
-                  />
-                </PopoverContent>
-              </Popover>
-              <FormMessage />
-            </FormItem>
-          );
-        }}
-      />
-
-      {/* Ngày hết hạn */}
-      <FormField
-        control={form.control}
-        name="endDate"
-        render={({ field }) => {
-          const dateValue = field.value as Date | undefined;
-          return (
-            <FormItem className="flex flex-col">
-              <FormLabel>Ngày hết hạn</FormLabel>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      variant={"outline"}
-                      className={cn(
-                        "pl-3 text-left font-normal",
-                        !dateValue && "text-muted-foreground",
-                      )}
-                    >
-                      {dateValue ? (
-                        format(dateValue, "dd/MM/yyyy")
-                      ) : (
-                        <span>Chọn ngày</span>
-                      )}
-                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    locale={vi}
-                    mode="single"
-                    selected={dateValue}
-                    onSelect={field.onChange}
-                  />
-                </PopoverContent>
-              </Popover>
-              <FormMessage />
-            </FormItem>
-          );
-        }}
       />
 
       {/* Mô tả vụ án */}

@@ -90,8 +90,6 @@ export function CreateCaseForm({
       userId: "",
       numberOfDefendants: 1,
       crimeType: "",
-      startDate: new Date(),
-      endDate: null,
       fields: defaultFields,
     } as FormData,
   });
@@ -111,8 +109,6 @@ export function CreateCaseForm({
           userId: values.userId,
           numberOfDefendants: String(values.numberOfDefendants),
           crimeType: values.crimeType,
-          startDate: values.startDate,
-          endDate: values.endDate,
           fields: dynamicFields,
           templateId: template.id,
         };

@@ -15,8 +15,6 @@ export const createCaseSchema = z.object({
     .min(0, "Số bị can phải ≥ 0")
     .optional(),
   crimeType: z.string().optional(),
-  startDate: z.date().optional(),
-  endDate: z.date().optional(),
   description: z.string().optional(),
   // Custom fields from template
   customFields: z.record(z.string(), z.unknown()).optional(),

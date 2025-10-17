@@ -1,9 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { format } from "date-fns";
-import { vi } from "date-fns/locale";
-import { CalendarIcon, Loader2Icon, Save } from "lucide-react";
+import { Loader2Icon, Save } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { useForm } from "react-hook-form";
@@ -13,7 +11,6 @@ import { updateCase } from "@/actions/case";
 import { RenderFormElement } from "@/components/features/templates/render-form-element";
 import Heading from "@/components/heading";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import {
   Card,
   CardContent,
@@ -31,11 +28,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
   Select,
   SelectContent,
   SelectItem,
@@ -44,7 +36,6 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { createCaseSchema } from "@/lib/schemas/create-case-schema";
-import { cn } from "@/lib/utils";
 import type { SelectStaffs } from "@/types";
 import type { Case } from "@/types/case";
 import type { Template } from "@/types/template";
@@ -128,8 +119,6 @@ export function EditCaseForm({
       userId: caseData.userId || "",
       numberOfDefendants: Number(caseData.numberOfDefendants) || 1,
       crimeType: caseData.crimeType || "",
-      startDate: caseData.startDate ? new Date(caseData.startDate) : new Date(),
-      endDate: caseData.endDate ? new Date(caseData.endDate) : null,
       fields: defaultFields,
     } as FormData,
   });
@@ -143,7 +132,7 @@ export function EditCaseForm({
           title: group.title,
           description: group.description,
           index: groupIndex,
-          fields: group.fields?.map((field, fieldIndex) => {
+          fields: group.fields?.map((field) => {
             const fieldName = `field_${field.id}`;
             const newValue = values.fields[fieldName];
 
@@ -163,8 +152,6 @@ export function EditCaseForm({
           userId: values.userId,
           numberOfDefendants: values.numberOfDefendants,
           crimeType: values.crimeType,
-          startDate: values.startDate,
-          endDate: values.endDate,
           // UpdateCaseReqDto structure for nested updates
           groups: updatedGroups,
         };
@@ -348,92 +335,6 @@ export function EditCaseForm({
                           disabled={isPending}
                         />
                       </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Ngày khởi tố */}
-                <FormField
-                  control={form.control}
-                  name="startDate"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel>
-                        Ngày khởi tố <span className="text-red-500">*</span>
-                      </FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant="outline"
-                              className={cn(
-                                "justify-start text-left font-normal",
-                                !field.value && "text-muted-foreground",
-                              )}
-                              disabled={isPending}
-                            >
-                              <CalendarIcon className="mr-2 h-4 w-4" />
-                              {field.value
-                                ? format(field.value, "dd/MM/yyyy", {
-                                    locale: vi,
-                                  })
-                                : "Chọn ngày"}
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0">
-                          <Calendar
-                            locale={vi}
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            disabled={isPending}
-                          />
-                        </PopoverContent>
-                      </Popover>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Ngày hết hạn */}
-                <FormField
-                  control={form.control}
-                  name="endDate"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel>Ngày hết hạn</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant="outline"
-                              className={cn(
-                                "justify-start text-left font-normal",
-                                !field.value && "text-muted-foreground",
-                              )}
-                              disabled={isPending}
-                            >
-                              <CalendarIcon className="mr-2 h-4 w-4" />
-                              {field.value
-                                ? format(field.value, "dd/MM/yyyy", {
-                                    locale: vi,
-                                  })
-                                : "Chọn ngày"}
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0">
-                          <Calendar
-                            locale={vi}
-                            mode="single"
-                            selected={field.value || undefined}
-                            onSelect={field.onChange}
-                            disabled={isPending}
-                          />
-                        </PopoverContent>
-                      </Popover>
                       <FormMessage />
                     </FormItem>
                   )}

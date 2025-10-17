@@ -60,11 +60,6 @@ export const createCaseSchema = (formElements: Template) => {
       .string()
       .trim()
       .min(1, { message: "Loại tội phạm là bắt buộc" }),
-    startDate: z.date({ message: "Ngày khởi tố không hợp lệ" }),
-    endDate: z
-      .date({ message: "Ngày kết thúc không hợp lệ" })
-      .optional()
-      .nullable(),
     fields: z.object(dynamicShape),
   });
 };
