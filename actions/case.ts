@@ -195,6 +195,9 @@ export async function getCasePlan(caseId: string): Promise<
     nextInvestigationPurpose: string;
     nextInvestigationContent: string[];
     participatingForces: string[];
+    startDate?: Date | string;
+    endDate?: Date | string;
+    budget: string;
   }>
 > {
   try {
@@ -207,6 +210,9 @@ export async function getCasePlan(caseId: string): Promise<
       nextInvestigationPurpose: string;
       nextInvestigationContent: string[];
       participatingForces: string[];
+      startDate?: Date | string;
+      endDate?: Date | string;
+      budget: string;
     }>(`/api/v1/cases/${caseId}/plan`, {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
@@ -222,6 +228,9 @@ export async function getCasePlan(caseId: string): Promise<
         nextInvestigationPurpose: "",
         nextInvestigationContent: [],
         participatingForces: [],
+        startDate: undefined,
+        endDate: undefined,
+        budget: "",
       },
     };
   }

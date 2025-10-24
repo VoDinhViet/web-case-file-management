@@ -15,6 +15,9 @@ export async function CasePlansTabWrapper({
     nextInvestigationPurpose: "",
     nextInvestigationContent: [],
     participatingForces: [],
+    startDate: undefined,
+    endDate: undefined,
+    budget: "",
   };
 
   return <CasePlansTabClient caseId={caseId} initialData={initialData} />;
