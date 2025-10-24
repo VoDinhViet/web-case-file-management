@@ -235,6 +235,9 @@ export async function updateCasePlan(
     nextInvestigationPurpose: string;
     nextInvestigationContent: string[];
     participatingForces: string[];
+    startDate?: Date;
+    endDate?: Date;
+    budget: string;
   },
 ): Promise<ActionResponseWithMessage> {
   try {

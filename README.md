@@ -1,21 +1,33 @@
-# Case Management System
+# Hệ thống Quản lý Vụ án
 
-A modern, full-featured case management application built with Next.js 15, TypeScript, and shadcn/ui. This application follows industry best practices for code organization, performance, and user experience.
+Ứng dụng quản lý vụ án hiện đại được xây dựng với Next.js 15, TypeScript và shadcn/ui. Hệ thống được thiết kế để hỗ trợ quản lý toàn diện các vụ án hình sự với các tính năng chuyên nghiệp.
 
-## 🚀 Features
+## 🚀 Tính năng chính
 
-- **Dashboard**: Comprehensive overview of cases with real-time statistics
-- **Case Management**: Create, view, update, and delete cases
-- **Analytics**: Insights and metrics visualization
-- **Settings**: User preferences and notifications
-- **Dark Mode**: Full dark mode support with system preference detection
-- **Responsive Design**: Mobile-first approach with beautiful UI
-- **Type Safety**: Full TypeScript support
-- **Modern UI**: Built with shadcn/ui components
+### Quản lý Vụ án
+- **Tạo và chỉnh sửa vụ án**: Giao diện thân thiện để nhập thông tin vụ án
+- **Tìm kiếm và lọc**: Tìm kiếm nâng cao với nhiều tiêu chí
+- **Trạng thái vụ án**: Theo dõi trạng thái từ chưa xử lý đến đã đóng
+- **Phân loại vụ án**: Hệ thống phân loại theo loại tội phạm
+- **Thông tin chi tiết**: Xem và chỉnh sửa thông tin chi tiết vụ án
 
-## 📋 Tech Stack
+### Kế hoạch Điều tra
+- **Kết quả điều tra ban đầu**: Ghi nhận kết quả điều tra về tố tụng
+- **Tang vật vụ án**: Quản lý danh sách tang vật
+- **Kế hoạch điều tra tiếp theo**: Lập kế hoạch chi tiết
+- **Tổ chức thực hiện**: Phân công lực lượng và thời gian
+- **Phương tiện, kinh phí**: Quản lý nguồn lực thực hiện
 
-- **Framework**: [Next.js 15](https://nextjs.org/) with App Router
+### Giao diện Người dùng
+- **Dashboard**: Tổng quan thống kê vụ án
+- **Bảng vụ án**: Hiển thị danh sách với các thao tác
+- **Chi tiết vụ án**: Xem thông tin chi tiết và kế hoạch
+- **Dark Mode**: Hỗ trợ chế độ tối
+- **Responsive**: Tối ưu cho mọi thiết bị
+
+## 📋 Công nghệ sử dụng
+
+- **Framework**: [Next.js 15](https://nextjs.org/) với App Router
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS v4
 - **UI Components**: [shadcn/ui](https://ui.shadcn.com/)
@@ -24,163 +36,114 @@ A modern, full-featured case management application built with Next.js 15, TypeS
 - **Themes**: next-themes
 - **Code Quality**: Biome (linting & formatting)
 
-## 🏗️ Project Structure
+## 🏗️ Cấu trúc Dự án
 
 ```
 fe-case-managerment-app/
 ├── app/                          # Next.js app router
 │   ├── (dashboard)/             # Dashboard layout group
-│   │   ├── analytics/           # Analytics page
-│   │   ├── cases/              # Cases pages
-│   │   ├── dashboard/          # Dashboard page
-│   │   ├── settings/           # Settings page
-│   │   ├── layout.tsx          # Dashboard layout
-│   │   └── error.tsx           # Dashboard error boundary
-│   ├── layout.tsx              # Root layout
-│   ├── page.tsx               # Landing page
-│   ├── error.tsx              # Global error boundary
-│   ├── not-found.tsx          # 404 page
-│   └── globals.css            # Global styles
+│   │   ├── cases/              # Trang quản lý vụ án
+│   │   │   ├── [id]/          # Chi tiết vụ án
+│   │   │   │   ├── page.tsx   # Trang chi tiết
+│   │   │   │   └── plans/     # Tab kế hoạch
+│   │   │   ├── create/        # Tạo vụ án mới
+│   │   │   └── page.tsx       # Danh sách vụ án
+│   │   ├── dashboard/         # Trang chủ
+│   │   └── layout.tsx         # Layout dashboard
+│   ├── layout.tsx             # Root layout
+│   └── page.tsx               # Trang chủ
 ├── components/
-│   ├── features/              # Feature-specific components
-│   │   ├── dashboard/         # Dashboard components
-│   │   └── cases/            # Case components
+│   ├── features/              # Components theo tính năng
+│   │   └── cases/            # Components vụ án
+│   │       ├── case-detail/  # Chi tiết vụ án
+│   │       ├── case-plans/   # Kế hoạch điều tra
+│   │       └── cases-table/  # Bảng danh sách
 │   ├── layout/               # Layout components
-│   │   ├── header.tsx
-│   │   ├── sidebar.tsx
-│   │   ├── mobile-nav.tsx
-│   │   ├── theme-toggle.tsx
-│   │   └── dashboard-layout.tsx
-│   ├── providers/            # Context providers
-│   │   └── theme-provider.tsx
 │   └── ui/                   # shadcn/ui components
-├── hooks/                    # Custom React hooks
-│   ├── use-local-storage.ts
-│   ├── use-media-query.ts
-│   ├── use-debounce.ts
-│   └── index.ts
 ├── lib/                      # Utility functions
-│   └── utils.ts
 ├── types/                    # TypeScript types
-│   └── index.ts
-├── config/                   # Configuration files
-│   ├── site.ts
-│   └── constants.ts
+├── schemas/                  # Zod validation schemas
+├── actions/                  # Server actions
 └── public/                   # Static assets
 ```
 
-## 🛠️ Getting Started
+## 🛠️ Cài đặt và Chạy
 
-### Prerequisites
+### Yêu cầu hệ thống
+- Node.js 20+
+- npm, yarn hoặc pnpm
 
-- Node.js 20+ 
-- npm or yarn or pnpm
+### Cài đặt
 
-### Installation
-
-1. Clone the repository:
+1. Clone repository:
 ```bash
 git clone <repository-url>
 cd fe-case-managerment-app
 ```
 
-2. Install dependencies:
+2. Cài đặt dependencies:
 ```bash
 npm install
-# or
+# hoặc
 yarn install
-# or
+# hoặc
 pnpm install
 ```
 
-3. Run the development server:
+3. Chạy development server:
 ```bash
 npm run dev
-# or
+# hoặc
 yarn dev
-# or
+# hoặc
 pnpm dev
 ```
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser
+4. Mở [http://localhost:3000](http://localhost:3000) trong trình duyệt
 
-## 📝 Available Scripts
+## 📝 Scripts có sẵn
 
-- `npm run dev` - Start development server with Turbopack
-- `npm run build` - Build for production
-- `npm run start` - Start production server
-- `npm run lint` - Run Biome linter
-- `npm run format` - Format code with Biome
+- `npm run dev` - Chạy development server với Turbopack
+- `npm run build` - Build cho production
+- `npm run start` - Chạy production server
+- `npm run lint` - Chạy Biome linter
+- `npm run format` - Format code với Biome
 
-## 🎨 Best Practices Implemented
+## 🎯 Tính năng Chi tiết
 
-### Code Organization
-- **Feature-based structure**: Components organized by feature/domain
-- **Shared components**: Reusable UI components in `components/ui`
-- **Custom hooks**: Extracted reusable logic in `hooks/`
-- **Type safety**: Centralized types in `types/`
-- **Configuration**: Centralized config in `config/`
+### Quản lý Vụ án
+- **Tạo vụ án**: Form động dựa trên template
+- **Chỉnh sửa**: Cập nhật thông tin vụ án
+- **Tìm kiếm**: Tìm kiếm theo tên, trạng thái, loại tội phạm
+- **Lọc**: Lọc theo nhiều tiêu chí
+- **Xóa**: Xóa vụ án với xác nhận
 
-### Next.js Best Practices
-- **App Router**: Using Next.js 15 App Router
-- **Route Groups**: Organized routes with layout groups
-- **Server Components**: Default to server components
-- **Client Components**: Marked with "use client" only when needed
-- **Error Boundaries**: Proper error handling with error.tsx
-- **Loading States**: Suspense boundaries for better UX
-- **Metadata**: SEO-friendly metadata configuration
+### Kế hoạch Điều tra
+- **Kết quả điều tra**: Ghi nhận kết quả ban đầu
+- **Tang vật**: Quản lý danh sách tang vật vụ án
+- **Mục đích**: Xác định mục đích điều tra tiếp theo
+- **Nội dung**: Lập danh sách công việc cần thực hiện
+- **Lực lượng**: Phân công lực lượng tham gia
+- **Thời gian**: Thiết lập thời gian bắt đầu và kết thúc
+- **Kinh phí**: Quản lý nguồn kinh phí và phương tiện
 
-### Performance
-- **Code Splitting**: Automatic with Next.js
-- **Image Optimization**: Using Next.js Image component
-- **Font Optimization**: Using next/font
-- **Lazy Loading**: Suspense for code splitting
-- **Turbopack**: Faster builds and HMR
+### Giao diện
+- **Dashboard**: Thống kê tổng quan
+- **Bảng dữ liệu**: Hiển thị danh sách với pagination
+- **Form động**: Tạo form dựa trên template
+- **Date Picker**: Chọn ngày tháng với locale Việt Nam
+- **Responsive**: Tối ưu cho mobile và desktop
 
-### UI/UX
-- **Responsive Design**: Mobile-first approach
-- **Dark Mode**: System preference detection
-- **Accessibility**: Semantic HTML and ARIA labels
-- **Loading States**: Skeleton loaders
-- **Error States**: User-friendly error messages
-- **Toast Notifications**: Using Sonner
-
-### Code Quality
-- **TypeScript**: Full type safety
-- **Biome**: Modern linting and formatting
-- **Consistent Naming**: Clear naming conventions
-- **Component Composition**: Small, reusable components
-- **Custom Hooks**: Extracted reusable logic
-
-## 🎯 Key Components
-
-### Layout Components
-- **Header**: Top navigation with notifications and user menu
-- **Sidebar**: Main navigation menu (desktop)
-- **MobileNav**: Responsive mobile navigation
-- **DashboardLayout**: Wrapper layout for dashboard pages
-
-### Feature Components
-- **DashboardStats**: Statistics cards
-- **RecentCases**: Recent case activities
-- **CasesTable**: Full case list with actions
-- **ThemeToggle**: Theme switcher
-
-### Custom Hooks
-- **useLocalStorage**: Persist state to localStorage
-- **useMediaQuery**: Responsive breakpoint detection
-- **useDebounce**: Debounce input values
-
-## 🔧 Configuration
+## 🔧 Cấu hình
 
 ### Environment Variables
-Create a `.env.local` file:
+Tạo file `.env.local`:
 ```env
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
 ### shadcn/ui Configuration
-Components are configured in `components.json`:
+Components được cấu hình trong `components.json`:
 - Style: New York
 - Color: Neutral
 - CSS Variables: Enabled
@@ -188,45 +151,20 @@ Components are configured in `components.json`:
 
 ## 📱 Responsive Design
 
-The application is fully responsive with breakpoints:
+Ứng dụng được thiết kế responsive với các breakpoint:
 - Mobile: < 768px
 - Tablet: 768px - 1024px
 - Desktop: > 1024px
 
 ## 🎨 Theming
 
-The application supports:
+Hỗ trợ các chế độ:
 - Light mode
 - Dark mode
 - System preference
 
-Themes are configured in `app/globals.css` using CSS variables.
+Themes được cấu hình trong `app/globals.css` sử dụng CSS variables.
 
-## 🔐 Future Enhancements
-
-- [ ] Authentication & Authorization
-- [ ] Real-time updates with WebSockets
-- [ ] File upload functionality
-- [ ] Advanced filtering and search
-- [ ] Export to PDF/Excel
-- [ ] Email notifications
-- [ ] Role-based access control
-- [ ] API integration
-- [ ] Database integration
-- [ ] Automated testing
 
 ## 📄 License
-
-This project is open source and available under the [MIT License](LICENSE).
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## 📞 Support
-
-For support, please open an issue in the GitHub repository.
-
----
-
-Built with ❤️ using Next.js and shadcn/ui
+AlvisDev

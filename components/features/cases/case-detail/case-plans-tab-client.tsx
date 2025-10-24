@@ -1,11 +1,14 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Download, Plus, Save, Trash2 } from "lucide-react";
+import { format } from "date-fns";
+import { vi } from "date-fns/locale";
+import { CalendarIcon, Download, Plus, Save, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Form,
@@ -16,7 +19,13 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 import { type CasePlanFormData, casePlanSchema } from "@/schemas/case-plan";
 
 interface CasePlansTabClientProps {
@@ -27,6 +36,9 @@ interface CasePlansTabClientProps {
     nextInvestigationPurpose: string;
     nextInvestigationContent: string[];
     participatingForces: string[];
+    startDate?: Date | string;
+    endDate?: Date | string;
+    budget: string;
   };
 }
 
@@ -39,7 +51,20 @@ export function CasePlansTabClient({
 
   const form = useForm<CasePlanFormData>({
     resolver: zodResolver(casePlanSchema),
-    defaultValues: initialData,
+    defaultValues: {
+      ...initialData,
+      budget: initialData.budget || "",
+      startDate: initialData.startDate
+        ? typeof initialData.startDate === "string"
+          ? new Date(initialData.startDate)
+          : initialData.startDate
+        : undefined,
+      endDate: initialData.endDate
+        ? typeof initialData.endDate === "string"
+          ? new Date(initialData.endDate)
+          : initialData.endDate
+        : undefined,
+    },
   });
 
   const {
@@ -129,6 +154,9 @@ export function CasePlansTabClient({
         nextInvestigationPurpose: data.nextInvestigationPurpose,
         nextInvestigationContent: data.nextInvestigationContent,
         participatingForces: data.participatingForces,
+        startDate: data.startDate,
+        endDate: data.endDate,
+        budget: data.budget,
       });
 
       if (result.success) {
@@ -495,6 +523,133 @@ export function CasePlansTabClient({
                   </div>
                 )}
               </div>
+
+              {/* Sub-section 2: Time Period */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <div className="rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-300 px-2.5 py-1 text-sm font-bold">
+                    2
+                  </div>
+                  <FormLabel className="text-base font-semibold">
+                    Thời gian thực hiện
+                  </FormLabel>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="startDate"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Ngày bắt đầu</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant={"outline"}
+                                className={cn(
+                                  "pl-3 text-left font-normal",
+                                  !field.value && "text-muted-foreground",
+                                )}
+                              >
+                                {field.value ? (
+                                  format(field.value, "dd/MM/yyyy")
+                                ) : (
+                                  <span>Chọn ngày bắt đầu</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              locale={vi}
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="endDate"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Ngày kết thúc</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant={"outline"}
+                                className={cn(
+                                  "pl-3 text-left font-normal",
+                                  !field.value && "text-muted-foreground",
+                                )}
+                              >
+                                {field.value ? (
+                                  format(field.value, "dd/MM/yyyy")
+                                ) : (
+                                  <span>Chọn ngày kết thúc</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              locale={vi}
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Section V: Budget and Resources */}
+        <div className="max-w-5xl">
+          <Card>
+            <CardHeader>
+              <CardTitle>V. Phương tiện, kinh phí</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <FormField
+                control={form.control}
+                name="budget"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-base font-semibold">
+                      Nguồn kinh phí và phương tiện
+                    </FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="VD: Phương tiện, kinh phí: trích từ kinh phí điều tra"
+                        rows={6}
+                        className="resize-none"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Nhập thông tin về nguồn kinh phí và phương tiện sử dụng
+                      cho kế hoạch điều tra
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </CardContent>
           </Card>
         </div>
