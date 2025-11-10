@@ -1,7 +1,9 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+import { updateSourceStatus } from "@/actions/source";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -11,8 +13,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { SourceStatusEnum } from "@/types";
-import { updateSourceStatus } from "@/actions/source";
-import { useRouter } from "next/navigation";
 
 interface UpdateSourceStatusProps {
   sourceId: string;
@@ -90,4 +90,3 @@ export function UpdateSourceStatus({
     </div>
   );
 }
-

@@ -60,7 +60,7 @@ export interface SourceStatsResponse {
   archived: number;
 }
 
-export interface StatusStats {
+export interface SourceStatusStats {
   status: SourceStatusEnum;
   count: number;
   percentage: number;

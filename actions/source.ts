@@ -166,15 +166,22 @@ export async function exportSourceReport(
     const cookieStore = await cookies();
     const accessToken = cookieStore.get("access_token")?.value;
 
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/reports/source/export?sourceId=${sourceId}&format=${format}`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "";
+    const query = new URLSearchParams({
+      sourceId,
+      format,
+    }).toString();
+
+    const endpoint = baseUrl
+      ? `${baseUrl}/api/source/export?${query}`
+      : `/api/source/export?${query}`;
+
+    const response = await fetch(endpoint, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
       },
-    );
+    });
 
     if (!response.ok) {
       throw new Error("Export failed");
