@@ -4,7 +4,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 export default function CreateCaseLoading() {
   return (
     <div className="container mx-auto py-6">
-      <div className="space-y-6">
+      <div className="space-y-6 max-w-3xl mx-auto">
         {/* Heading Skeleton */}
         <div className="space-y-2">
           <Skeleton className="h-8 w-48" />
@@ -14,37 +14,38 @@ export default function CreateCaseLoading() {
         {/* Basic Info Card Skeleton */}
         <Card>
           <CardHeader className="border-b bg-muted/30">
-            <Skeleton className="h-6 w-40" />
-            <Skeleton className="h-4 w-56 mt-2" />
+            <div className="space-y-2">
+              <Skeleton className="h-6 w-40" />
+              <Skeleton className="h-4 w-56" />
+            </div>
           </CardHeader>
           <CardContent className="pt-6">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              {/* 2 cols full width field */}
               <div className="md:col-span-2 space-y-2">
                 <Skeleton className="h-4 w-24" />
                 <Skeleton className="h-10 w-full" />
               </div>
 
-              {/* 4 regular fields */}
-              {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="space-y-2">
-                  <Skeleton className="h-4 w-32" />
-                  <Skeleton className="h-10 w-full" />
-                </div>
-              ))}
+              {["Điều", "Cán bộ", "Số bị can", "Loại tội phạm"].map(
+                (label, index) => (
+                  <div key={`basic-field-${index}`} className="space-y-2">
+                    <Skeleton className="h-4 w-32" />
+                    <Skeleton className="h-10 w-full" />
+                  </div>
+                ),
+              )}
 
-              {/* Description textarea */}
               <div className="md:col-span-2 space-y-2">
-                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-4 w-28" />
                 <Skeleton className="h-24 w-full" />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Dynamic Template Cards Skeleton (2 cards) */}
-        {[1, 2].map((cardIndex) => (
-          <Card key={cardIndex}>
+        {/* Dynamic Template Cards Skeleton */}
+        {Array.from({ length: 2 }).map((_, cardIndex) => (
+          <Card key={`template-card-skeleton-${cardIndex}`}>
             <CardHeader className="border-b bg-muted/30">
               <div className="flex items-start gap-3">
                 <Skeleton className="h-8 w-8 rounded-lg" />
@@ -56,10 +57,19 @@ export default function CreateCaseLoading() {
             </CardHeader>
             <CardContent className="pt-6">
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="space-y-2">
+                {Array.from({ length: 4 }).map((_, fieldIndex) => (
+                  <div
+                    key={`template-card-field-${cardIndex}-${fieldIndex}`}
+                    className={
+                      fieldIndex === 3 ? "md:col-span-2 space-y-2" : "space-y-2"
+                    }
+                  >
                     <Skeleton className="h-4 w-32" />
-                    <Skeleton className="h-10 w-full" />
+                    <Skeleton
+                      className={
+                        fieldIndex === 3 ? "h-24 w-full" : "h-10 w-full"
+                      }
+                    />
                   </div>
                 ))}
               </div>

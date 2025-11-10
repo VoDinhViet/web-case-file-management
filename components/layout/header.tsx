@@ -1,6 +1,6 @@
 "use client";
 
-import { Search } from "lucide-react";
+import { LogOut, Search } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -22,16 +22,18 @@ import { Input } from "@/components/ui/input";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { clearFCMCache } from "@/hooks/use-fcm-token";
 import type { Staff } from "@/types";
+import { useTransition } from "react";
 
 interface HeaderProps {
-  user: Staff | null;
+  info: Staff | null;
 }
 
-export function Header({ user }: HeaderProps) {
+export function Header({ info }: HeaderProps) {
   const router = useRouter();
+  const [isPending, startTransition] = useTransition();
 
-  const initials = user?.fullName
-    ? user.fullName
+  const initials = info?.fullName
+    ? info.fullName
         .split(" ")
         .map((n) => n[0])
         .join("")
@@ -40,20 +42,21 @@ export function Header({ user }: HeaderProps) {
     : "UN";
 
   const handleLogout = async () => {
-    try {
-      const result = await logout();
-      if (result.success) {
-        // Clear FCM token cache
-        clearFCMCache();
-        toast.success("Đăng xuất thành công");
-        router.push("/login");
-      } else {
-        toast.error(result.error || "Đăng xuất thất bại");
+    startTransition(async () => {
+      try {
+        const result = await logout();
+        if (result.success) {
+          clearFCMCache();
+          toast.success("Đăng xuất thành công");
+          router.push("/login");
+        } else {
+          toast.error(result.error || "Đăng xuất thất bại");
+        }
+      } catch (error) {
+        console.error("Logout failed:", error);
+        toast.error("Đã xảy ra lỗi khi đăng xuất");
       }
-    } catch (error) {
-      console.error("Logout failed:", error);
-      toast.error("Đã xảy ra lỗi khi đăng xuất");
-    }
+    });
   };
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
@@ -94,56 +97,35 @@ export function Header({ user }: HeaderProps) {
           {/* Theme Toggle */}
           <ThemeToggle />
 
-          {/* User Menu */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                className="relative h-9 w-9 rounded-full p-0 hover:bg-muted"
-              >
-                <Avatar className="h-9 w-9 border-2 border-primary/10">
-                  <AvatarImage src="/avatar.png" alt="User" />
-                  <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground text-sm font-semibold">
-                    {initials}
-                  </AvatarFallback>
-                </Avatar>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-64">
-              <DropdownMenuLabel className="pb-2">
-                <div className="flex items-center gap-3">
-                  <Avatar className="h-10 w-10">
-                    <AvatarImage src="/avatar.png" alt="User" />
-                    <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground">
-                      {initials}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-semibold">
-                      {user?.fullName || "User Name"}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {user?.phone || "Chưa có số điện thoại"}
-                    </p>
-                  </div>
-                </div>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild className="cursor-pointer">
-                <Link href="/profile">Hồ sơ cá nhân</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild className="cursor-pointer">
-                <Link href="/settings">Cài đặt</Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={handleLogout}
-                className="text-red-600 cursor-pointer focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-950"
-              >
-                Đăng xuất
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {/* User Info */}
+          <div className="hidden md:flex items-center gap-2.5 rounded-lg bg-muted/50 px-2.5 py-1.5 transition-colors hover:bg-muted/70">
+            <Avatar className="h-7 w-7 ring-2 ring-background">
+              <AvatarImage src={"/avatar.png"} alt="User" />
+              <AvatarFallback className="bg-linear-to-br from-primary to-primary/80 text-primary-foreground text-xs font-semibold">
+                {initials}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex flex-col min-w-0">
+              <p className="text-sm font-semibold text-foreground leading-none truncate max-w-[120px]">
+                {info?.fullName || "Tên người dùng"}
+              </p>
+              <p className="text-xs text-muted-foreground leading-tight truncate max-w-[120px]">
+                {info?.phone || "Chưa có số điện thoại"}
+              </p>
+            </div>
+          </div>
+
+          {/* Logout Button */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleLogout}
+            disabled={isPending}
+            className="gap-2 h-9 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/50 dark:hover:text-red-400"
+          >
+            <LogOut className="h-4 w-4" />
+            <span className="hidden lg:inline text-sm">Đăng xuất</span>
+          </Button>
         </div>
       </div>
     </header>

@@ -4,5 +4,5 @@ import { Header } from "./header";
 export async function HeaderWrapper() {
   const { data: user } = await getCurrentUser();
 
-  return <Header user={user} />;
+  return <Header info={user} />;
 }

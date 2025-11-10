@@ -6,6 +6,7 @@ import {
   FileSignature,
   LayoutDashboard,
   LayoutDashboardIcon,
+  Newspaper,
   Users,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
@@ -75,6 +76,12 @@ const navItems: NavItem[] = [
     title: "Quản lý vụ án",
     href: "/cases",
     icon: Briefcase,
+  },
+  {
+    id: "sources",
+    title: "Quản lý nguồn tin",
+    href: "/sources",
+    icon: Newspaper,
   },
   {
     id: "templates",

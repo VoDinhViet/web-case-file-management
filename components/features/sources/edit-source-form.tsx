@@ -7,30 +7,29 @@ import { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
-import { updateCase } from "@/actions/case";
+import { updateSource } from "@/actions/source";
 import { BasicInfoCard } from "@/components/features/templates/basic-info-card";
 import { TemplateGroupsForm } from "@/components/features/templates/template-groups-form";
 import Heading from "@/components/heading";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
-import { createCaseSchema } from "@/lib/schemas/create-case-schema";
-import type { SelectStaffs } from "@/types";
-import type { Case } from "@/types/case";
+import { createSourceSchema } from "@/lib/schemas/create-source-schema";
+import type { SelectStaffs, Source } from "@/types";
 import type { Template } from "@/types/template";
-import { CaseBasicInfoFields } from "./case-basic-info-fields";
+import { SourceBasicInfoFields } from "./source-basic-info-fields";
 
-interface EditCaseFormProps {
-  caseData: Case;
-  selectStaffs: SelectStaffs[];
+interface EditSourceFormProps {
+  sourceData: Source;
+  selectUsers: SelectStaffs[];
 }
 
-// Convert Case groups to Template structure for schema compatibility
-const convertCaseToTemplate = (caseData: Case): Template => {
+// Convert Source groups to Template structure for schema compatibility
+const convertSourceToTemplate = (sourceData: Source): Template => {
   return {
-    id: caseData.templateId || "",
+    id: sourceData.templateId || "",
     title: "",
     description: "",
-    groups: (caseData.groups || []).map((group) => ({
+    groups: (sourceData.groups || []).map((group) => ({
       id: group.id,
       title: group.title,
       description: group.description,
@@ -47,30 +46,29 @@ const convertCaseToTemplate = (caseData: Case): Template => {
   } as Template;
 };
 
-export function EditCaseForm({
-  caseData,
-  selectStaffs: selectUsers,
-}: EditCaseFormProps) {
+export function EditSourceForm({
+  sourceData,
+  selectUsers,
+}: EditSourceFormProps) {
   const router = useRouter();
-  console.log("caseData", caseData);
   const [isPending, startTransition] = useTransition();
 
-  // Convert case to template structure
-  const template = convertCaseToTemplate(caseData);
+  // Convert source to template structure
+  const template = convertSourceToTemplate(sourceData);
 
-  const schema = createCaseSchema(template);
+  const schema = createSourceSchema(template);
   type FormData = z.infer<typeof schema>;
 
-  // Prepare initial field values from case data
+  // Prepare initial field values from source data
   const defaultFields = Object.fromEntries(
     template.groups.flatMap((g) =>
       g.fields.map((f): [string, string | number | Date | null] => {
-        // Find matching field value from case data
-        const caseField = caseData.groups
+        // Find matching field value from source data
+        const sourceField = sourceData.groups
           ?.flatMap((group) => group.fields || [])
           .find((field) => field.id === f.id);
 
-        let value = caseField?.fieldValue;
+        let value = sourceField?.fieldValue;
 
         // Convert date strings to Date objects
         if (f.fieldType === "date" && value && typeof value === "string") {
@@ -92,12 +90,12 @@ export function EditCaseForm({
   const form = useForm<FormData>({
     resolver: zodResolver(schema) as never,
     defaultValues: {
-      name: caseData.name || "",
-      description: caseData.description || "",
-      applicableLaw: caseData.applicableLaw || "",
-      userId: caseData.userId || "",
-      numberOfDefendants: Number(caseData.numberOfDefendants) || 1,
-      crimeType: caseData.crimeType || "",
+      name: sourceData.name || "",
+      description: sourceData.description || "",
+      applicableLaw: sourceData.applicableLaw || "",
+      userId: sourceData.userId || "",
+      numberOfDefendants: Number(sourceData.numberOfDefendants) || 1,
+      crimeType: sourceData.crimeType || "",
       fields: defaultFields,
     } as FormData,
   });
@@ -105,8 +103,8 @@ export function EditCaseForm({
   async function onSubmit(values: FormData) {
     startTransition(async () => {
       try {
-        // Prepare groups with updated field values matching UpdateCaseReqDto
-        const updatedGroups = caseData.groups?.map((group, groupIndex) => ({
+        // Prepare groups with updated field values matching UpdateSourceReqDto
+        const updatedGroups = sourceData.groups?.map((group, groupIndex) => ({
           id: group.id,
           title: group.title,
           description: group.description,
@@ -124,30 +122,29 @@ export function EditCaseForm({
         }));
 
         const payload = {
-          // Basic case fields (maps to casesTable columns)
+          // Basic source fields
           name: values.name,
           description: values.description,
           applicableLaw: values.applicableLaw,
           userId: values.userId,
           numberOfDefendants: values.numberOfDefendants,
           crimeType: values.crimeType,
-          // UpdateCaseReqDto structure for nested updates
+          // UpdateSourceReqDto structure for nested updates
           groups: updatedGroups,
         };
 
-        console.log("Update payload:", payload);
-        const result = await updateCase(caseData.id, payload as never);
+        const result = await updateSource(sourceData.id, payload as never);
 
         if (result.success) {
-          toast.success(result.message || "Cập nhật vụ án thành công");
-          router.push(`/cases/${caseData.id}`);
+          toast.success(result.message || "Cập nhật nguồn tin thành công");
+          router.push(`/sources/${sourceData.id}`);
           router.refresh();
         } else {
           toast.error(result.error || "Có lỗi xảy ra");
         }
       } catch (error) {
         console.error("Error:", error);
-        toast.error("Đã xảy ra lỗi khi cập nhật vụ án");
+        toast.error("Đã xảy ra lỗi khi cập nhật nguồn tin");
       }
     });
   }
@@ -159,8 +156,8 @@ export function EditCaseForm({
   return (
     <div className="space-y-6 max-w-3xl mx-auto">
       <Heading
-        title="Chỉnh sửa vụ án"
-        description={`Cập nhật thông tin vụ án: ${caseData.name}`}
+        title="Chỉnh sửa nguồn tin"
+        description={`Cập nhật thông tin nguồn tin: ${sourceData.name}`}
         showBack
         onBack={handleCancel}
       />
@@ -170,9 +167,9 @@ export function EditCaseForm({
           {/* Basic Info Card */}
           <BasicInfoCard
             title="Thông tin cơ bản"
-            description="Các trường thông tin cơ bản của vụ án"
+            description="Các trường thông tin cơ bản của nguồn tin"
           >
-            <CaseBasicInfoFields
+            <SourceBasicInfoFields
               form={form as never}
               selectUsers={selectUsers}
               disabled={isPending}

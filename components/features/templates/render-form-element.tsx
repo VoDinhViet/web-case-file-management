@@ -41,121 +41,131 @@ export const RenderFormElement = ({
     case "text":
     case "number":
       return (
-        <FormField
-          control={form.control}
-          name={name}
-          render={({ field }: { field: ControllerRenderProps }) => (
-            <FormItem className="w-full">
-              <FormLabel>
-                {formElement.fieldLabel}{" "}
-                {formElement.isRequired && (
-                  <span className="text-red-500"> *</span>
-                )}
-              </FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  value={field.value || ""}
-                  type={formElement.fieldType === "number" ? "number" : "text"}
-                  placeholder={formElement.placeholder}
-                  onChange={(e) =>
-                    field.onChange(
-                      formElement.fieldType === "number"
-                        ? e.target.valueAsNumber
-                        : e.target.value,
-                    )
-                  }
-                />
-              </FormControl>
-              {formElement.description && (
-                <FormDescription>{formElement.description}</FormDescription>
-              )}
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      );
-
-    case "textarea":
-      return (
-        <FormField
-          control={form.control}
-          name={name}
-          render={({ field }: { field: ControllerRenderProps }) => (
-            <FormItem className="w-full">
-              <FormLabel>
-                {formElement.fieldLabel}{" "}
-                {formElement.isRequired && (
-                  <span className="text-red-500"> *</span>
-                )}
-              </FormLabel>
-              <FormControl>
-                <Textarea
-                  {...field}
-                  value={field.value ?? ""}
-                  placeholder={formElement.placeholder}
-                />
-              </FormControl>
-              {formElement.description && (
-                <FormDescription>{formElement.description}</FormDescription>
-              )}
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      );
-
-    case "date":
-      return (
-        <FormField
-          control={form.control}
-          name={name}
-          render={({ field }) => {
-            const dateValue = field.value as Date | undefined;
-            return (
-              <FormItem className="flex flex-col">
+        <div className="space-y-2">
+          <FormField
+            control={form.control}
+            name={name}
+            render={({ field }: { field: ControllerRenderProps }) => (
+              <FormItem className="w-full">
                 <FormLabel>
                   {formElement.fieldLabel}{" "}
                   {formElement.isRequired && (
                     <span className="text-red-500"> *</span>
                   )}
                 </FormLabel>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <FormControl>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                          "pl-3 text-left font-normal",
-                          !dateValue && "text-muted-foreground",
-                        )}
-                      >
-                        {dateValue ? (
-                          format(dateValue, "dd/MM/yyyy")
-                        ) : (
-                          <span>{formElement.placeholder || "Chọn ngày"}</span>
-                        )}
-                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                      </Button>
-                    </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      locale={vi}
-                      mode="single"
-                      selected={dateValue}
-                      onSelect={field.onChange}
-                    />
-                  </PopoverContent>
-                </Popover>
+                <FormControl>
+                  <Input
+                    {...field}
+                    value={field.value || ""}
+                    type={
+                      formElement.fieldType === "number" ? "number" : "text"
+                    }
+                    placeholder={formElement.placeholder}
+                    onChange={(e) =>
+                      field.onChange(
+                        formElement.fieldType === "number"
+                          ? e.target.valueAsNumber
+                          : e.target.value,
+                      )
+                    }
+                  />
+                </FormControl>
                 {formElement.description && (
                   <FormDescription>{formElement.description}</FormDescription>
                 )}
                 <FormMessage />
               </FormItem>
-            );
-          }}
-        />
+            )}
+          />
+        </div>
+      );
+
+    case "textarea":
+      return (
+        <div className="space-y-2">
+          <FormField
+            control={form.control}
+            name={name}
+            render={({ field }: { field: ControllerRenderProps }) => (
+              <FormItem className="w-full">
+                <FormLabel>
+                  {formElement.fieldLabel}{" "}
+                  {formElement.isRequired && (
+                    <span className="text-red-500"> *</span>
+                  )}
+                </FormLabel>
+                <FormControl>
+                  <Textarea
+                    {...field}
+                    value={field.value ?? ""}
+                    placeholder={formElement.placeholder}
+                  />
+                </FormControl>
+                {formElement.description && (
+                  <FormDescription>{formElement.description}</FormDescription>
+                )}
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+      );
+
+    case "date":
+      return (
+        <div className="space-y-2">
+          <FormField
+            control={form.control}
+            name={name}
+            render={({ field }) => {
+              const dateValue = field.value as Date | undefined;
+              return (
+                <FormItem className="flex flex-col">
+                  <FormLabel>
+                    {formElement.fieldLabel}{" "}
+                    {formElement.isRequired && (
+                      <span className="text-red-500"> *</span>
+                    )}
+                  </FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "pl-3 text-left font-normal",
+                            !dateValue && "text-muted-foreground",
+                          )}
+                        >
+                          {dateValue ? (
+                            format(dateValue, "dd/MM/yyyy")
+                          ) : (
+                            <span>
+                              {formElement.placeholder || "Chọn ngày"}
+                            </span>
+                          )}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        locale={vi}
+                        mode="single"
+                        selected={dateValue}
+                        onSelect={field.onChange}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  {formElement.description && (
+                    <FormDescription>{formElement.description}</FormDescription>
+                  )}
+                  <FormMessage />
+                </FormItem>
+              );
+            }}
+          />
+        </div>
       );
 
     default:

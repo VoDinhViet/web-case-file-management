@@ -3,39 +3,38 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon, Save } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { use, useTransition } from "react";
+import { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
-import { createCase } from "@/actions/case";
+import { createSource } from "@/actions/source";
 import { BasicInfoCard } from "@/components/features/templates/basic-info-card";
 import { TemplateGroupsForm } from "@/components/features/templates/template-groups-form";
 import Heading from "@/components/heading";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
-import { createCaseSchema } from "@/lib/schemas/create-case-schema";
+import { createSourceSchema } from "@/lib/schemas/create-source-schema";
 import {
   buildTemplateDefaultValues,
   mapTemplateFields,
 } from "@/lib/template-utils";
 import type { SelectStaffs } from "@/types";
 import type { Template } from "@/types/template";
-import { CaseBasicInfoFields } from "./case-basic-info-fields";
+import { SourceBasicInfoFields } from "./source-basic-info-fields";
 
-interface CreateCaseFormProps {
+interface CreateSourceFormProps {
   template: Template;
-  promiseSelectUsers: Promise<SelectStaffs[]>;
+  selectUsers: SelectStaffs[];
 }
 
-export function CreateCaseForm({
+export function CreateSourceForm({
   template,
-  promiseSelectUsers,
-}: CreateCaseFormProps) {
+  selectUsers,
+}: CreateSourceFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const selectUsers = use(promiseSelectUsers);
 
-  const schema = createCaseSchema(template);
+  const schema = createSourceSchema(template);
   type FormData = z.infer<typeof schema>;
 
   // Generate default values for dynamic fields
@@ -56,28 +55,34 @@ export function CreateCaseForm({
 
   async function onSubmit(values: FormData) {
     startTransition(async () => {
-      const dynamicFields = mapTemplateFields(
-        template,
-        values.fields as Record<string, unknown>,
-      );
-      const payload = {
-        name: values.name,
-        description: values.description,
-        applicableLaw: values.applicableLaw,
-        userId: values.userId,
-        numberOfDefendants: String(values.numberOfDefendants),
-        crimeType: values.crimeType,
-        fields: dynamicFields,
-        templateId: template.id,
-      };
+      try {
+        const dynamicFields = mapTemplateFields(
+          template,
+          values.fields as Record<string, unknown>,
+        );
 
-      const result = await createCase(payload);
+        const payload = {
+          name: values.name,
+          description: values.description,
+          applicableLaw: values.applicableLaw,
+          userId: values.userId,
+          numberOfDefendants: String(values.numberOfDefendants),
+          crimeType: values.crimeType,
+          fields: dynamicFields,
+          templateId: template.id,
+        };
 
-      if (result.success) {
-        toast.success("Tạo vụ án thành công");
-        router.push("/cases");
-      } else {
-        toast.error(result.error || "Có lỗi xảy ra");
+        const result = await createSource(payload);
+
+        if (result.success) {
+          toast.success(result.message || "Tạo nguồn tin thành công");
+          router.push("/sources");
+        } else {
+          toast.error(result.error || "Có lỗi xảy ra");
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        toast.error("Đã xảy ra lỗi khi tạo nguồn tin");
       }
     });
   }
@@ -89,8 +94,8 @@ export function CreateCaseForm({
   return (
     <div className="space-y-6 max-w-3xl mx-auto">
       <Heading
-        title="Tạo mới vụ án"
-        description={`Tạo vụ án từ mẫu: ${template.title}`}
+        title="Tạo mới nguồn tin"
+        description={`Tạo nguồn tin từ mẫu: ${template.title}`}
         showBack
         onBack={handleCancel}
       />
@@ -100,9 +105,9 @@ export function CreateCaseForm({
           {/* Basic Info Card */}
           <BasicInfoCard
             title="Thông tin cơ bản"
-            description="Các trường thông tin cơ bản của vụ án"
+            description="Các trường thông tin cơ bản của nguồn tin"
           >
-            <CaseBasicInfoFields
+            <SourceBasicInfoFields
               form={form as never}
               selectUsers={selectUsers}
               disabled={isPending}
@@ -113,7 +118,7 @@ export function CreateCaseForm({
           <TemplateGroupsForm template={template} form={form as never} />
 
           {/* Submit Buttons */}
-          <div className="flex justify-end gap-3">
+          <div className="flex justify-end gap-3 border-t pt-6">
             <Button
               type="button"
               variant="outline"
@@ -132,7 +137,7 @@ export function CreateCaseForm({
               ) : (
                 <>
                   <Save className="mr-2 h-5 w-5" />
-                  Tạo vụ án
+                  Tạo nguồn tin
                 </>
               )}
             </Button>
